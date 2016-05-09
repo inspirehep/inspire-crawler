@@ -26,9 +26,8 @@
 
 from __future__ import absolute_import, print_function
 
+from .ext import INSPIRECrawler
 from .receivers import *
-
-from .ext import InspireCrawler
 from .version import __version__
 
-__all__ = ('__version__', 'InspireCrawler')
+__all__ = ('__version__', 'INSPIRECrawler')

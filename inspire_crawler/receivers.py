@@ -23,6 +23,8 @@
 
 """Configuration for crawler integration."""
 
+from __future__ import absolute_import, print_function
+
 import pathlib2
 
 from invenio_oaiharvester.signals import oaiharvest_finished

@@ -23,9 +23,11 @@
 
 """Configuration for crawler integration."""
 
+from __future__ import absolute_import, print_function
+
 
 CRAWLER_HOST_URL = "http://localhost:6800"
-
+CRAWLER_DATA_TYPE = "hep"
 CRAWLER_PROJECT = "hepcrawl"
 
 CRAWLER_SETTINGS = {

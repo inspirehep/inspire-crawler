@@ -31,7 +31,7 @@ import pytest
 
 from flask import Flask
 
-from inspire_crawler import InspireCrawler
+from inspire_crawler import INSPIRECrawler
 
 @pytest.fixture()
 def app():
@@ -40,5 +40,5 @@ def app():
     app.config.update(
         TESTING=True
     )
-    InspireCrawler(app)
+    INSPIRECrawler(app)
     return app

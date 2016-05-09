@@ -28,7 +28,8 @@ from __future__ import absolute_import, print_function
 
 from . import config
 
-class InspireCrawler(object):
+
+class INSPIRECrawler(object):
     """inspire-crawler extension."""
 
     def __init__(self, app=None):

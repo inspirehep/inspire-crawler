@@ -89,7 +89,20 @@ setup(
     zip_safe=False,
     include_package_data=True,
     platforms='any',
-    entry_points={},
+    entry_points={
+        'invenio_base.api_apps': [
+            'inspire_crawler = inspire_crawler:INSPIRECrawler',
+        ],
+        'invenio_base.apps': [
+            'inspire_crawler = inspire_crawler:INSPIRECrawler',
+        ],
+        'invenio_db.models': [
+            'inspire_crawler = inspire_crawler.models',
+        ],
+        'invenio_celery.tasks': [
+            'inspire_crawler = inspire_crawler.tasks',
+        ],
+    },
     extras_require=extras_require,
     install_requires=install_requires,
     setup_requires=setup_requires,

@@ -23,11 +23,13 @@
 
 """Models for crawler integration."""
 
+from __future__ import absolute_import, print_function
+
 from datetime import datetime
 
 from enum import Enum
 
-from invenio_ext.sqlalchemy import db
+from invenio_db import db
 
 from sqlalchemy_utils.types import ChoiceType, UUIDType
 
@@ -55,7 +57,6 @@ class JobStatus(Enum):
 
 
 class CrawlerJob(db.Model):
-
     """Represents a submitted crawler job."""
 
     __tablename__ = 'crawler_job'

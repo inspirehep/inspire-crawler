@@ -23,32 +23,36 @@
 
 """Celery tasks for dealing with crawler."""
 
-import os
+from __future__ import absolute_import, print_function
+
 import json
+import os
 
 from urlparse import urlparse
 
+from celery import shared_task
+
 from flask import current_app
 
-from invenio_ext.sqlalchemy import db
-from invenio_celery import celery
-from invenio_workflows.api import start_delayed
+from invenio_db import db
+
+from invenio_workflows import WorkflowObject
 
 from .errors import (
-    CrawlerScheduleError,
     CrawlerInvalidResultsPath,
     CrawlerJobVerificationError,
+    CrawlerScheduleError,
 )
 from .models import CrawlerJob
 
 
-@celery.task(ignore_results=True)
+@shared_task(ignore_results=True)
 def submit_results(job_id, results_uri, **kwargs):
     """Check results for current job."""
     results_path = urlparse(results_uri).path
     if not os.path.exists(results_path):
         raise CrawlerInvalidResultsPath(
-            "Path specificed in result does not exist: {0}".format(results_path)
+            "Path specified in result does not exist: {0}".format(results_path)
         )
     job = CrawlerJob.query.get(job_id)
     if not job:
@@ -56,13 +60,18 @@ def submit_results(job_id, results_uri, **kwargs):
             "Cannot find job id: {0}".format(job_id)
         )
     with open(results_path) as records:
-        for line in records:
+        for line in records.readlines():
             record = json.loads(line)
-            start_delayed(job.workflow, data=[record], **kwargs)
-            break
+            obj = WorkflowObject.create_object()
+            obj.extra_data['crawler_job_id'] = job_id
+            obj.extra_data['crawler_results_path'] = results_path
+            obj.extra_data['record_extra'] = record.pop('extra_data', {})
+            obj.data_type = current_app.config['CRAWLER_DATA_TYPE']
+            obj.data = record
+            obj.start_workflow(job.workflow, delayed=True)
 
 
-@celery.task(ignore_results=True)
+@shared_task(ignore_results=True)
 def schedule_crawl(spider, workflow, **kwargs):
     """Schedule a crawl using configuration from the workflow objects."""
     from inspire_crawler.utils import get_crawler_instance
@@ -88,7 +97,7 @@ def schedule_crawl(spider, workflow, **kwargs):
             workflow=workflow,
         )
         db.session.commit()
-        print("Scheduled job {0}".format(job_id))
+        current_app.logger.info("Scheduled job {0}".format(job_id))
     else:
         raise CrawlerScheduleError(
             "Could not schedule '{0}' spider for project '{1}'".format(

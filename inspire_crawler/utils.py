@@ -23,9 +23,11 @@
 
 """Utility functions for interfacing with the crawler."""
 
-from scrapyd_api import ScrapydAPI
+from __future__ import absolute_import, print_function
 
 from flask import current_app
+
+from scrapyd_api import ScrapydAPI
 
 
 def get_crawler_instance():
