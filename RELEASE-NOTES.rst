@@ -2,7 +2,7 @@
  inspire-crawler v0.1.0
 ========================
 
-inspire-crawler v0.1.0 was released on TBD, 2016.
+inspire-crawler v0.1.0 was released on 1st of June, 2016.
 
 About
 -----

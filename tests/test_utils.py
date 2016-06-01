@@ -22,12 +22,14 @@
 # waive the privileges and immunities granted to it by virtue of its status
 # as an Intergovernmental Organization or submit itself to any jurisdiction.
 
-"""Version information for inspire-crawler.
-
-This file is imported by ``inspire_crawler.__init__``,
-and parsed by ``setup.py``.
-"""
+"""Module tests."""
 
 from __future__ import absolute_import, print_function
 
-__version__ = "0.1.0"
+from inspire_crawler.utils import get_crawler_instance
+
+
+def test_utils(app):
+    """Test tasks."""
+    with app.app_context():
+        assert get_crawler_instance()

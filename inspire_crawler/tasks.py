@@ -28,7 +28,7 @@ from __future__ import absolute_import, print_function
 import json
 import os
 
-from urlparse import urlparse
+from six.moves.urllib.parse import urlparse
 
 from celery import shared_task
 
@@ -40,7 +40,6 @@ from invenio_workflows import WorkflowObject
 
 from .errors import (
     CrawlerInvalidResultsPath,
-    CrawlerJobVerificationError,
     CrawlerScheduleError,
 )
 from .models import CrawlerJob
@@ -54,11 +53,7 @@ def submit_results(job_id, results_uri, **kwargs):
         raise CrawlerInvalidResultsPath(
             "Path specified in result does not exist: {0}".format(results_path)
         )
-    job = CrawlerJob.query.get(job_id)
-    if not job:
-        raise CrawlerJobVerificationError(
-            "Cannot find job id: {0}".format(job_id)
-        )
+    job = CrawlerJob.get_by_job(job_id)
     with open(results_path) as records:
         for line in records.readlines():
             record = json.loads(line)

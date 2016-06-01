@@ -27,4 +27,4 @@ Authors
 
 Crawler integration with INSPIRE-HEP.
 
-- CERN <feedback@inspirehep.net>
+- Jan Aage Lavik <jan.age.lavik@cern.ch>

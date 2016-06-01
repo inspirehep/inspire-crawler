@@ -34,14 +34,18 @@ import tempfile
 from flask import Flask
 from flask_celeryext import FlaskCeleryExt
 from flask_cli import FlaskCLI
-from invenio_db import InvenioDB, db
+from invenio_db import InvenioDB, db as db_
+from invenio_workflows import InvenioWorkflows
+from invenio_oaiharvester import InvenioOAIHarvester
 from inspire_crawler import INSPIRECrawler
+
+from sqlalchemy_utils.functions import create_database, database_exists
 
 import pytest
 
 
-@pytest.fixture()
-def app():
+@pytest.yield_fixture()
+def app(request):
     """Flask application fixture."""
     instance_path = tempfile.mkdtemp()
     app = Flask(__name__, instance_path=instance_path)
@@ -59,15 +63,36 @@ def app():
     FlaskCLI(app)
     FlaskCeleryExt(app)
     InvenioDB(app)
+    InvenioWorkflows(app)
+    InvenioOAIHarvester(app)
     INSPIRECrawler(app)
 
     with app.app_context():
-        db.create_all()
+        yield app
 
-    def teardown():
-        with app.app_context():
-            db.drop_all()
-        shutil.rmtree(instance_path)
+    shutil.rmtree(instance_path)
 
-    request.addfinalizer(teardown)
-    return app
+
+@pytest.yield_fixture()
+def db(app):
+    """Database fixture."""
+    if not database_exists(str(db_.engine.url)):
+        create_database(str(db_.engine.url))
+    db_.create_all()
+    yield db_
+    db_.session.remove()
+    db_.drop_all()
+
+
+@pytest.fixture()
+def halt_workflow(app):
+    def halt_engine(obj, eng):
+        return eng.halt("Test")
+
+    class HaltTest(object):
+        workflow = [halt_engine]
+
+    app.extensions['invenio-workflows'].register_workflow(
+        HaltTest.__name__, HaltTest
+    )
+    return HaltTest

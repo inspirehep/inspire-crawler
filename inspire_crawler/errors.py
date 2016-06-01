@@ -34,9 +34,9 @@ class CrawlerScheduleError(CrawlerError):
     """Problem scheduling crawler."""
 
 
+class CrawlerJobNotExistError(CrawlerError):
+    """Problem getting crawler job."""
+
+
 class CrawlerInvalidResultsPath(CrawlerError):
     """Problem getting results from crawler."""
-
-
-class CrawlerJobVerificationError(CrawlerError):
-    """Problem with verifying job id."""

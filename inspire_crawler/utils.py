@@ -30,6 +30,10 @@ from flask import current_app
 from scrapyd_api import ScrapydAPI
 
 
-def get_crawler_instance():
+def get_crawler_instance(*args, **kwargs):
     """Return current search client."""
-    return ScrapydAPI(current_app.config.get('CRAWLER_HOST_URL'))
+    return ScrapydAPI(
+        current_app.config.get('CRAWLER_HOST_URL'),
+        *args,
+        **kwargs
+    )

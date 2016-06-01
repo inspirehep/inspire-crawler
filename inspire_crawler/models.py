@@ -32,6 +32,9 @@ from enum import Enum
 from invenio_db import db
 
 from sqlalchemy_utils.types import ChoiceType, UUIDType
+from sqlalchemy.orm.exc import NoResultFound
+
+from .errors import CrawlerJobNotExistError
 
 
 class JobStatus(Enum):
@@ -61,7 +64,8 @@ class CrawlerJob(db.Model):
 
     __tablename__ = 'crawler_job'
 
-    job_id = db.Column(UUIDType, primary_key=True, index=True)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    job_id = db.Column(UUIDType, index=True)
     spider = db.Column(db.String(255), index=True)
     workflow = db.Column(db.String(255), index=True)
     status = db.Column(ChoiceType(JobStatus, impl=db.String(10)),
@@ -79,6 +83,16 @@ class CrawlerJob(db.Model):
                   workflow=workflow,
                   status=status)
         db.session.add(obj)
+
+    @classmethod
+    def get_by_job(cls, job_id):
+        """Get a row by Job UUID."""
+        try:
+            return cls.query.filter_by(
+                job_id=job_id
+            ).one()
+        except NoResultFound:
+            raise CrawlerJobNotExistError(job_id)
 
 
 __all__ = (

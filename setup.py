@@ -25,10 +25,8 @@
 """Crawler integration with INSPIRE-HEP."""
 
 import os
-import sys
 
 from setuptools import find_packages, setup
-from setuptools.command.test import test as TestCommand
 
 readme = open('README.rst').read()
 history = open('CHANGES.rst').read()
@@ -36,7 +34,7 @@ history = open('CHANGES.rst').read()
 tests_require = [
     'check-manifest>=0.25',
     'coverage>=4.0',
-    'isort>=4.2.2',
+    'responses>=0.2.2',
     'pydocstyle>=1.0.0',
     'pytest-cache>=1.0',
     'pytest-cov>=1.8.0',
@@ -72,10 +70,14 @@ setup_requires = [
 ]
 
 install_requires = [
+    'six>=1.9.0',
     'Flask>=0.10.1',
-    'python-scrapyd-api>=0.2.0',
-    'pathlib2',
-    'invenio-celery>=1.0.0a3'
+    'python-scrapyd-api>=2.0.1',
+    'pathlib2>=2.1.0',
+    'invenio-celery>=1.0.0a3',
+    'workflow==2.0.0.dev20160223',
+    'invenio_workflows==1.0.0a1.dev20160126',
+    'invenio_oaiharvester==1.0.0a1.dev20160406',
 ]
 
 packages = find_packages()
