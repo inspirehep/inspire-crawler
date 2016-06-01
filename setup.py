@@ -46,13 +46,24 @@ tests_require = [
 
 extras_require = {
     'docs': [
-        'Sphinx>=1.3',
+        'Sphinx>=1.4',
+    ],
+    'postgresql': [
+        'invenio-db[postgresql,versioning]>=1.0.0a9',
+    ],
+    'mysql': [
+        'invenio-db[mysql,versioning]>=1.0.0a9',
+    ],
+    'sqlite': [
+        'invenio-db[versioning]>=1.0.0a9',
     ],
     'tests': tests_require,
 }
 
 extras_require['all'] = []
-for reqs in extras_require.values():
+for name, reqs in extras_require.items():
+    if name in ('mysql', 'postgresql', 'sqlite'):
+        continue
     extras_require['all'].extend(reqs)
 
 setup_requires = [
@@ -64,6 +75,7 @@ install_requires = [
     'Flask>=0.10.1',
     'python-scrapyd-api>=0.2.0',
     'pathlib2',
+    'invenio-celery>=1.0.0a3'
 ]
 
 packages = find_packages()

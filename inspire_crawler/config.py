@@ -32,7 +32,8 @@ CRAWLER_PROJECT = "hepcrawl"
 
 CRAWLER_SETTINGS = {
     "API_PIPELINE_URL": "http://localhost:5555/api/task/async-apply",
-    "API_PIPELINE_TASK_ENDPOINT_DEFAULT": "inspire_crawler.tasks.submit_results"
+    "API_PIPELINE_TASK_ENDPOINT_DEFAULT": ("inspire_crawler.tasks"
+                                           ".submit_results")
 }
 
 CRAWLER_ARGUMENT_CONFIG = {}

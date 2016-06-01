@@ -64,8 +64,12 @@ class CrawlerJob(db.Model):
     job_id = db.Column(UUIDType, primary_key=True, index=True)
     spider = db.Column(db.String(255), index=True)
     workflow = db.Column(db.String(255), index=True)
-    status = db.Column(ChoiceType(JobStatus, impl=db.String(10)), nullable=False)
-    scheduled = db.Column(db.DateTime, default=datetime.now, nullable=False, index=True)
+    status = db.Column(ChoiceType(JobStatus, impl=db.String(10)),
+                       nullable=False)
+    scheduled = db.Column(db.DateTime,
+                          default=datetime.now,
+                          nullable=False,
+                          index=True)
 
     @classmethod
     def create(cls, job_id, spider, workflow, status=JobStatus.PENDING):
