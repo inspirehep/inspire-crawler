@@ -60,7 +60,7 @@ class JobStatus(Enum):
 
 
 class CrawlerJob(db.Model):
-    """Represents a submitted crawler job."""
+    """Keeps track of submitted crawler jobs."""
 
     __tablename__ = 'crawler_job'
 

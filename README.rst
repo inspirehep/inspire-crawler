@@ -41,9 +41,22 @@
         :target: https://github.com/inspirehep/inspire-crawler/blob/master/LICENSE
 
 
-Crawler integration with INSPIRE-HEP.
+Crawler integration with INSPIRE-HEP using scrapy project `HEPCrawl`_.
 
-*This is an experimental developer preview release.*
+This module allows scheduling of crawler jobs to a `Scrapyd`_ instance serving
+a `Scrapy`_ project. E.g. in this case the default scrapy project is `HEPCrawl`_.
 
-* Free software: GPLv2 license
-* Documentation: https://pythonhosted.org/inspire-crawler/
+It integrates directly with `invenio-workflows`_ module to create workflows for every
+record harvested by the crawler.
+
+This module is meant to use only with `INSPIRE-HEP`_ overlay. **Use at own risk.**
+
+Full documentation is hosted here: http://pythonhosted.org/inspire-crawler/
+
+See also documentation of HEPCrawl: http://pythonhosted.org/hepcrawl/
+
+.. _HEPCrawl: http://pythonhosted.org/hepcrawl/
+.. _Scrapyd: http://scrapyd.readthedocs.io/
+.. _Scrapy: http://doc.scrapy.org/
+.. _invenio-workflows: http://pythonhosted.org/invenio-workflows/
+.. _INSPIRE-HEP: http://inspirehep.readthedocs.io

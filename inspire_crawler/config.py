@@ -27,13 +27,35 @@ from __future__ import absolute_import, print_function
 
 
 CRAWLER_HOST_URL = "http://localhost:6800"
+"""URL to Scrapyd HTTP server."""
+
 CRAWLER_DATA_TYPE = "hep"
+"""WorkflowObject `data_type` to set to all workflow objects."""
+
 CRAWLER_PROJECT = "hepcrawl"
+"""Scrapy project name to schedule crawls for."""
 
 CRAWLER_SETTINGS = {
     "API_PIPELINE_URL": "http://localhost:5555/api/task/async-apply",
     "API_PIPELINE_TASK_ENDPOINT_DEFAULT": ("inspire_crawler.tasks"
                                            ".submit_results")
 }
+"""Dictionary of settings to add to crawlers.
 
-CRAWLER_ARGUMENT_CONFIG = {}
+By default set to flower tasks HTTP API and the standard task to be called with
+the results of the harvesting.
+"""
+
+CRAWLER_SPIDER_ARGUMENTS = {}
+"""Add any spider arguments to be passed when scheduling tasks.
+
+For example for spider `myspider`:
+
+.. code-block:: python
+
+    {
+        'myspider': {'somearg': 'foo'}
+    }
+
+You can also pass arguments directly to the scheduler with kwargs.
+"""

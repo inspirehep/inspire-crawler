@@ -25,6 +25,38 @@
 API Docs
 ========
 
-inspire_crawler
----------------
+Tasks API
+---------
+.. automodule:: inspire_crawler.tasks
+   :members: submit_results, schedule_crawl
+   :undoc-members:
+   :show-inheritance:
+.. autotask:: inspire_crawler.tasks.submit_results
 
+
+Signal receivers
+----------------
+.. automodule:: inspire_crawler.receivers
+    :members: receive_oaiharvest_job
+    :undoc-members:
+
+
+Configuration
+-------------
+.. automodule:: inspire_crawler.config
+    :members:
+    :undoc-members:
+
+
+Models
+------
+.. automodule:: inspire_crawler.models
+    :members:
+    :undoc-members:
+
+
+Errors
+------
+.. automodule:: inspire_crawler.errors
+    :members:
+    :undoc-members:
