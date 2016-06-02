@@ -2,14 +2,13 @@
  inspire-crawler v0.1.0
 ========================
 
-inspire-crawler v0.1.0 was released on 1st of June, 2016.
+inspire-crawler v0.1.0 was released on 2nd of June, 2016.
 
 About
 -----
 
-Crawler integration with INSPIRE-HEP.
+Crawler integration with INSPIRE-HEP using scrapy project `HEPCrawl`_.
 
-*This is an experimental developer preview release.*
 
 What's new
 ----------

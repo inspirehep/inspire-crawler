@@ -68,3 +68,14 @@ script:
 
 after_success:
   - coveralls
+
+deploy:
+  provider: pypi
+  user: inspirehep
+  password:
+    secure: MGD+iOX98IFnb72xTEY5JTpDh/e1DP4FXfwsFoHjxu5HsYU8Oia4awfeN3q89oWeV2sgQSHYTW0qsuOZwAHDUqxiYnuJtmdnCDWPkQ/g+sAplb/IqmpD9PpqxFIGANlwRcZOfBZmKDYQp3GlItwYWf9fh1yRdgY30w338MA5sWh5AfSzBB9FHJNlDKqHKsDCjz6yXnak4AWaEng8s+E/zISbJDsS0rsdBwSYjH6BqwyBfyQaLNP7m3NNpIbmo6776FVKos4TjjoZbMhV7p2+Xi/+S5NVr2zuUyTzqWJMVv0eVMmamlyfi/iRbawOSrS9tRc+VKlrP82+NUb7iBv62WMmOqEtktrFiB+sZRUnySl60fF0ompE5ikKWsA7ODJaCE+Uc2eJoFPiRBZxdAXaCcbxyK5sPzcweKCMuitJ5gXa+KguTYPq7IR9W19tjrJsPskSXZP4YDAb2rTcZzpopr2X/YkotKGycVc+fFftrUDP84htsAyScZ4Y2Jp1pSN2vg8KsC6vXkyeiSojzbpZfdbpYFZXfMzhq3VqCyva0bs89VKjt3tqN7rHrz5ya2WL3mCwgy+xOYbP3TWLd0+3S1gXwVOLnH8bRMughFWSPQaZlAtF0rCxx36C27pHpPNcthiHLLblE4xbRqjqLqfzsSogGPmv65iIKIBm6SqOtmA=
+  on:
+    branch: master
+    tags: true
+    distributions: sdist bdist_wheel
+    repo: inspirehep/inspire-crawler
