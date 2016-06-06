@@ -45,6 +45,7 @@ from inspire_crawler.errors import (
     CrawlerInvalidResultsPath,
     CrawlerJobNotExistError,
     CrawlerScheduleError,
+    CrawlerJobError,
 )
 from inspire_crawler.receivers import receive_oaiharvest_job
 
@@ -78,14 +79,21 @@ def test_tasks(app, db, halt_workflow, sample_record_filename):
     job_id = uuid.uuid4().hex  # init random value
     with app.app_context():
         with pytest.raises(CrawlerInvalidResultsPath):
-            submit_results(job_id, "")
+            submit_results(job_id, results_uri="", errors=None, log_file=None)
+        with pytest.raises(CrawlerInvalidResultsPath):
+            submit_results(job_id, results_uri="", errors=None, log_file=None)
         with pytest.raises(CrawlerJobNotExistError):
-            submit_results(job_id, sample_record_filename)
+            submit_results(
+                job_id, results_uri=sample_record_filename,
+                errors=None, log_file=None
+            )
 
         CrawlerJob.create(
             job_id=job_id,
             spider="Test",
             workflow=halt_workflow.__name__,
+            logs=None,
+            results=None,
         )
         db.session.commit()
 
@@ -96,13 +104,31 @@ def test_tasks(app, db, halt_workflow, sample_record_filename):
         assert str(job.status)
         assert job.status == JobStatus.PENDING
 
-        submit_results(job_id, sample_record_filename)
+        submit_results(
+            job_id=job_id,
+            results_uri=sample_record_filename,
+            errors=None,
+            log_file="/foo/bar"
+        )
+
+        job = CrawlerJob.get_by_job(job_id)
+        assert job.logs == "/foo/bar"
+        assert job.results == sample_record_filename
 
         workflow = WorkflowObject.query.get(1)
         assert workflow
         assert workflow.extra_data['crawler_job_id'] == job_id
         crawler_results_path = workflow.extra_data['crawler_results_path']
         assert crawler_results_path == urlparse(sample_record_filename).path
+
+        with pytest.raises(CrawlerJobError):
+            submit_results(
+                job_id, results_uri=sample_record_filename,
+                errors=["Some error"], log_file=None
+            )
+
+        job = CrawlerJob.get_by_job(job_id)
+        assert job.status == JobStatus.ERROR
 
 
 @responses.activate

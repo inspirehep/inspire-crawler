@@ -44,6 +44,7 @@ class JobStatus(Enum):
 
     PENDING = 'pending'
     RUNNING = 'running'
+    ERROR = 'error'
     FINISHED = 'finished'
     UNKNOWN = ''
 
@@ -68,19 +69,24 @@ class CrawlerJob(db.Model):
     job_id = db.Column(UUIDType, index=True)
     spider = db.Column(db.String(255), index=True)
     workflow = db.Column(db.String(255), index=True)
+    results = db.Column(db.Text, nullable=True)
     status = db.Column(ChoiceType(JobStatus, impl=db.String(10)),
                        nullable=False)
+    logs = db.Column(db.Text, nullable=True)
     scheduled = db.Column(db.DateTime,
                           default=datetime.now,
                           nullable=False,
                           index=True)
 
     @classmethod
-    def create(cls, job_id, spider, workflow, status=JobStatus.PENDING):
+    def create(cls, job_id, spider, workflow, results=None,
+               logs=None, status=JobStatus.PENDING):
         """Create a new entry for a scheduled crawler job."""
         obj = cls(job_id=job_id,
                   spider=spider,
                   workflow=workflow,
+                  results=results,
+                  logs=logs,
                   status=status)
         db.session.add(obj)
 
@@ -93,6 +99,11 @@ class CrawlerJob(db.Model):
             ).one()
         except NoResultFound:
             raise CrawlerJobNotExistError(job_id)
+
+    def save(self):
+        """Save object to persistent storage."""
+        with db.session.begin_nested():
+            db.session.add(self)
 
 
 __all__ = (

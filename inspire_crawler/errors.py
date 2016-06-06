@@ -40,3 +40,7 @@ class CrawlerJobNotExistError(CrawlerError):
 
 class CrawlerInvalidResultsPath(CrawlerError):
     """Problem getting results from crawler."""
+
+
+class CrawlerJobError(CrawlerError):
+    """There was an error with a job."""

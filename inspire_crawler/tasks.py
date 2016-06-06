@@ -40,13 +40,14 @@ from invenio_workflows import WorkflowObject
 
 from .errors import (
     CrawlerInvalidResultsPath,
+    CrawlerJobError,
     CrawlerScheduleError,
 )
-from .models import CrawlerJob
+from .models import CrawlerJob, JobStatus
 
 
 @shared_task(ignore_results=True)
-def submit_results(job_id, results_uri, **kwargs):
+def submit_results(job_id, results_uri, errors, log_file):
     """Check results for current job."""
     results_path = urlparse(results_uri).path
     if not os.path.exists(results_path):
@@ -54,6 +55,15 @@ def submit_results(job_id, results_uri, **kwargs):
             "Path specified in result does not exist: {0}".format(results_path)
         )
     job = CrawlerJob.get_by_job(job_id)
+    job.logs = log_file
+    job.results = results_uri
+
+    if errors:
+        job.status = JobStatus.ERROR
+        job.save()
+        db.session.commit()
+        raise CrawlerJobError(str(errors))
+
     with open(results_path) as records:
         for line in records.readlines():
             record = json.loads(line)
@@ -63,7 +73,13 @@ def submit_results(job_id, results_uri, **kwargs):
             obj.extra_data['record_extra'] = record.pop('extra_data', {})
             obj.data_type = current_app.config['CRAWLER_DATA_TYPE']
             obj.data = record
+            obj.save()
+            db.session.commit()
             obj.start_workflow(job.workflow, delayed=True)
+
+    job.status = JobStatus.FINISHED
+    job.save()
+    db.session.commit()
 
 
 @shared_task(ignore_results=True)

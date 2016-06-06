@@ -27,6 +27,8 @@ from __future__ import absolute_import, print_function
 
 import pathlib2
 
+from flask import current_app
+
 from invenio_oaiharvester.signals import oaiharvest_finished
 
 from .tasks import schedule_crawl
@@ -41,7 +43,10 @@ def receive_oaiharvest_job(request, records, name, **kwargs):
     if not spider or not workflow:
         return
 
-    files_created, _ = write_to_dir(records, output_dir='crawls')
+    files_created, _ = write_to_dir(
+        records,
+        output_dir=current_app.config['CRAWLER_OAIHARVEST_OUTPUT_DIRECTORY']
+    )
 
     for source_file in files_created:
         # URI is required by scrapy.

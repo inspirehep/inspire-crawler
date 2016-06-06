@@ -59,3 +59,5 @@ For example for spider `myspider`:
 
 You can also pass arguments directly to the scheduler with kwargs.
 """
+
+CRAWLER_OAIHARVEST_OUTPUT_DIRECTORY = "crawls"
