@@ -28,9 +28,9 @@ from __future__ import absolute_import, print_function
 import pathlib2
 
 from invenio_oaiharvester.signals import oaiharvest_finished
-from invenio_oaiharvester.utils import write_to_dir
 
 from .tasks import schedule_crawl
+from .utils import write_to_dir
 
 
 @oaiharvest_finished.connect

@@ -26,10 +26,37 @@
 
 from __future__ import absolute_import, print_function
 
-from inspire_crawler.utils import get_crawler_instance
+from mock import MagicMock, PropertyMock
+
+from inspire_crawler.utils import get_crawler_instance, write_to_dir
 
 
 def test_utils(app):
     """Test tasks."""
     with app.app_context():
         assert get_crawler_instance()
+
+
+def test_write_to_dir(app, tmpdir):
+    """Test dir creation."""
+    mock_record = MagicMock()
+    prop_mock = PropertyMock(return_value="foo")
+    type(mock_record).raw = prop_mock
+
+    mock_record_2 = MagicMock()
+    prop_mock = PropertyMock(return_value="bar")
+    type(mock_record_2).raw = prop_mock
+    with app.app_context():
+        files, total = write_to_dir([mock_record], tmpdir.dirname)
+        assert len(files) == 1
+        assert total == 1
+
+        files, total = write_to_dir(
+            [mock_record, mock_record_2], tmpdir.dirname, max_records=1
+        )
+        assert len(files) == 2
+        assert total == 2
+
+        files, total = write_to_dir([], tmpdir.dirname, max_records=1)
+        assert len(files) == 0
+        assert total == 0
