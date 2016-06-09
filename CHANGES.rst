@@ -25,6 +25,12 @@
 Changes
 =======
 
+Version 0.2.0 (released 2016-06-09)
+
+- Updates CrawlerJob database model to store results and logs paths.
+- Makes sure invenio_oaiharvester receiver is producing parseable XML when
+  receiving OAI-PMH records via the `oaiharvest_finished` signal.
+
 Version 0.1.0 (released 2016-06-02)
 
 - Initial public release.
