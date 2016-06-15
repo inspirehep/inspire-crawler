@@ -75,9 +75,9 @@ install_requires = [
     'python-scrapyd-api>=2.0.1',
     'pathlib2>=2.1.0',
     'invenio-celery>=1.0.0a3',
-    'workflow==2.0.0.dev20160223',
-    'invenio_workflows==1.0.0a1.dev20160126',
-    'invenio_oaiharvester==1.0.0a1.dev20160406',
+    'workflow',
+    'invenio_workflows',
+    'invenio_oaiharvester',
 ]
 
 packages = find_packages()

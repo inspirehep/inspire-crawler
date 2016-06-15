@@ -28,5 +28,6 @@
 #     -e git+git://github.com/mitsuhiko/werkzeug.git#egg=Werkzeug
 #     -e git+git://github.com/mitsuhiko/jinja2.git#egg=Jinja2
 
--e git+https://github.com/inspirehep/invenio-workflows.git@invenio3#egg=invenio-workflows==1.0.0a1.dev20160126
--e git+https://github.com/inveniosoftware/invenio-oaiharvester.git#egg=invenio-oaiharvester==1.0.0a1.dev20160406
+-e git+https://github.com/inspirehep/workflow.git@master#egg=workflow
+-e git+https://github.com/inspirehep/invenio-workflows.git@invenio3#egg=invenio-workflows
+-e git+https://github.com/inveniosoftware/invenio-oaiharvester.git#egg=invenio-oaiharvester
