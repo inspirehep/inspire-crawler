@@ -25,6 +25,10 @@
 Changes
 =======
 
+Version 0.2.1 (released 2016-06-15)
+
+- Package dependency fixes.
+
 Version 0.2.0 (released 2016-06-09)
 
 - Updates CrawlerJob database model to store results and logs paths.

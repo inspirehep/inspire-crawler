@@ -1,8 +1,8 @@
 ========================
- inspire-crawler v0.2.0
+ inspire-crawler v0.2.1
 ========================
 
-inspire-crawler v0.2.0 was released on 9th of June, 2016.
+inspire-crawler v0.2.1 was released on 15th of June, 2016.
 
 About
 -----
@@ -20,7 +20,7 @@ What's new
 Installation
 ------------
 
-   $ pip install inspire-crawler==0.2.0
+   $ pip install inspire-crawler==0.2.1
 
 Documentation
 -------------
