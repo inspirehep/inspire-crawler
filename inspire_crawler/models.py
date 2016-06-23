@@ -34,6 +34,8 @@ from invenio_db import db
 from sqlalchemy_utils.types import ChoiceType, UUIDType
 from sqlalchemy.orm.exc import NoResultFound
 
+from invenio_workflows.models import WorkflowObjectModel
+
 from .errors import CrawlerJobNotExistError
 
 
@@ -106,6 +108,18 @@ class CrawlerJob(db.Model):
             db.session.add(self)
 
 
+class CrawlerWorkflowObject(db.Model):
+    """Relation between a job and workflow objects."""
+
+    __tablename__ = "crawler_workflows_object"
+
+    job_id = db.Column(UUIDType, primary_key=True)
+    object_id = db.Column(db.Integer,
+                          db.ForeignKey(WorkflowObjectModel.id),
+                          primary_key=True)
+
+
 __all__ = (
     'CrawlerJob',
+    'CrawlerWorkflowObject',
 )
