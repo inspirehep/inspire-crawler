@@ -1,8 +1,8 @@
 ========================
- inspire-crawler v0.2.1
+ inspire-crawler v0.2.2
 ========================
 
-inspire-crawler v0.2.1 was released on 15th of June, 2016.
+inspire-crawler v0.2.2 was released on 6th of July, 2016.
 
 About
 -----
@@ -13,14 +13,13 @@ Crawler integration with INSPIRE-HEP using scrapy project `HEPCrawl`_.
 What's new
 ----------
 
-- Updates CrawlerJob database model to store results and logs paths.
-- Makes sure invenio_oaiharvester receiver is producing parseable XML when
-  receiving OAI-PMH records via the `oaiharvest_finished` signal.
+- Added CrawlerWorkflowObject to models
+- Updates to support new invenio-workflows
 
 Installation
 ------------
 
-   $ pip install inspire-crawler==0.2.1
+   $ pip install inspire-crawler==0.2.2
 
 Documentation
 -------------

@@ -25,6 +25,11 @@
 Changes
 =======
 
+Version 0.2.2 (released 2016-07-06)
+
+- Added CrawlerWorkflowObject to models
+- Updates to support new invenio-workflows
+
 Version 0.2.1 (released 2016-06-15)
 
 - Package dependency fixes.
