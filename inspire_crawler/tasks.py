@@ -36,14 +36,14 @@ from flask import current_app
 
 from invenio_db import db
 
-from invenio_workflows import WorkflowObject
+from invenio_workflows.proxies import workflow_object_class
 
 from .errors import (
     CrawlerInvalidResultsPath,
     CrawlerJobError,
     CrawlerScheduleError,
 )
-from .models import CrawlerJob, JobStatus
+from .models import CrawlerJob, JobStatus, CrawlerWorkflowObject
 
 
 @shared_task(ignore_results=True)
@@ -67,14 +67,18 @@ def submit_results(job_id, results_uri, errors, log_file):
     with open(results_path) as records:
         for line in records.readlines():
             record = json.loads(line)
-            obj = WorkflowObject.create_object()
+            obj = workflow_object_class.create(data=record)
             obj.extra_data['crawler_job_id'] = job_id
             obj.extra_data['crawler_results_path'] = results_path
             obj.extra_data['record_extra'] = record.pop('extra_data', {})
             obj.data_type = current_app.config['CRAWLER_DATA_TYPE']
-            obj.data = record
             obj.save()
             db.session.commit()
+
+            crawler_object = CrawlerWorkflowObject(
+                job_id=job_id, object_id=obj.id
+            )
+            db.session.add(crawler_object)
             obj.start_workflow(job.workflow, delayed=True)
 
     job.status = JobStatus.FINISHED

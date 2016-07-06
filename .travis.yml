@@ -59,7 +59,7 @@ before_install:
 
 install:
   - "travis_retry pip install -e git+https://github.com/inspirehep/workflow.git#egg=workflow"
-  - "travis_retry pip install -e git+https://github.com/inspirehep/invenio-workflows.git@invenio3#egg=invenio-workflows"
+  - "travis_retry pip install -e git+https://github.com/inspirehep/invenio-workflows.git@qa#egg=invenio-workflows"
   - "travis_retry pip install -e git+https://github.com/inveniosoftware/invenio-oaiharvester.git#egg=invenio-oaiharvester"
   - "travis_retry pip install -e .[${EXTRAS}]"
 

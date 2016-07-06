@@ -38,7 +38,7 @@ from mock import MagicMock, PropertyMock
 
 from six.moves.urllib.parse import urlparse
 
-from invenio_workflows.models import WorkflowObject
+from invenio_workflows import WorkflowObject
 from inspire_crawler.models import JobStatus, CrawlerJob
 from inspire_crawler.tasks import submit_results
 from inspire_crawler.errors import (
@@ -115,7 +115,7 @@ def test_tasks(app, db, halt_workflow, sample_record_filename):
         assert job.logs == "/foo/bar"
         assert job.results == sample_record_filename
 
-        workflow = WorkflowObject.query.get(1)
+        workflow = WorkflowObject.get(1)
         assert workflow
         assert workflow.extra_data['crawler_job_id'] == job_id
         crawler_results_path = workflow.extra_data['crawler_results_path']
