@@ -114,9 +114,15 @@ class CrawlerWorkflowObject(db.Model):
     __tablename__ = "crawler_workflows_object"
 
     job_id = db.Column(UUIDType, primary_key=True)
-    object_id = db.Column(db.Integer,
-                          db.ForeignKey(WorkflowObjectModel.id),
-                          primary_key=True)
+    object_id = db.Column(
+        db.Integer,
+        db.ForeignKey(
+            WorkflowObjectModel.id,
+            ondelete="CASCADE",
+            onupdate="CASCADE",
+        ),
+        primary_key=True
+    )
 
 
 __all__ = (
