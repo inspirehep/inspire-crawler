@@ -22,4 +22,10 @@
     as an Intergovernmental Organization or submit itself to any jurisdiction.
 
 
-.. include:: ../CHANGES.rst
+
+Changelog
+------------
+Here you can find the `full changelog for this version`_
+
+
+.. _full changelog for this version: _static/CHANGELOG.txt

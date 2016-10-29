@@ -24,12 +24,9 @@
 
 """Crawler integration with INSPIRE-HEP."""
 
-import os
-
 from setuptools import find_packages, setup
 
 readme = open('README.rst').read()
-history = open('CHANGES.rst').read()
 
 tests_require = [
     'check-manifest>=0.25',
@@ -65,35 +62,31 @@ for name, reqs in extras_require.items():
     extras_require['all'].extend(reqs)
 
 setup_requires = [
+    'autosemver~=0.1.9',
     'Babel>=1.3',
     'pytest-runner>=2.6.2',
 ]
 
 install_requires = [
+    'autosemver~=0.1.9',
     'six>=1.9.0',
     'Flask>=0.10.1',
     'python-scrapyd-api>=2.0.1',
     'pathlib2>=2.1.0',
     'invenio-celery>=1.0.0a3',
     # 'workflow>=2.0.0',
-    # 'invenio_workflows>=1.0.0a1',
+    'invenio_workflows~=6.0.2',
     # 'invenio_oaiharvester>=1.0.0a1',
 ]
 
 packages = find_packages()
 
 
-# Get the version string. Cannot be done with import!
-g = {}
-with open(os.path.join('inspire_crawler', 'version.py'), 'rt') as fp:
-    exec(fp.read(), g)
-    version = g['__version__']
-
 setup(
     name='inspire-crawler',
-    version=version,
+    autosemver=True,
     description=__doc__,
-    long_description=readme + '\n\n' + history,
+    long_description=readme,
     keywords='invenio inspire scrapy crawler',
     license='GPLv2',
     author='CERN',
