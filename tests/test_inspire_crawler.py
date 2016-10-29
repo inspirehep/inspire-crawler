@@ -32,12 +32,6 @@ from flask import Flask
 from inspire_crawler import INSPIRECrawler
 
 
-def test_version():
-    """Test version import."""
-    from inspire_crawler import __version__
-    assert __version__
-
-
 def test_init():
     """Test extension initialization."""
     app = Flask('testapp')

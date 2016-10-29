@@ -22,4 +22,9 @@
     as an Intergovernmental Organization or submit itself to any jurisdiction.
 
 
-.. include:: ../AUTHORS.rst
+Authors
+------------
+Here you can find the `full list of authors`_
+
+
+.. _full list of authors: _static/AUTHORS.txt
