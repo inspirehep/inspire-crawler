@@ -64,8 +64,13 @@ def submit_results(job_id, results_uri, errors, log_file):
         db.session.commit()
         raise CrawlerJobError(str(errors))
 
+    current_app.logger.info('Parsing records from {}'.format(results_path))
     with open(results_path) as records:
-        for line in records.readlines():
+        lines = records.readlines()
+        for line in lines:
+            current_app.logger.debug(
+                'Parsing record line: {}'.format(line)
+            )
             record = json.loads(line)
             obj = workflow_object_class.create(data=record)
             obj.extra_data['crawler_job_id'] = job_id
@@ -80,6 +85,8 @@ def submit_results(job_id, results_uri, errors, log_file):
             )
             db.session.add(crawler_object)
             obj.start_workflow(job.workflow, delayed=True)
+
+        current_app.logger.info('Parsed {} records.'.format(len(lines)))
 
     job.status = JobStatus.FINISHED
     job.save()
