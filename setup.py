@@ -62,13 +62,13 @@ for name, reqs in extras_require.items():
     extras_require['all'].extend(reqs)
 
 setup_requires = [
-    'autosemver~=0.1.9',
+    'autosemver~=0.2,>=0.2',
     'Babel>=1.3',
     'pytest-runner>=2.6.2',
 ]
 
 install_requires = [
-    'autosemver~=0.1.9',
+    'autosemver~=0.2,>=0.2',
     'six>=1.9.0',
     'Flask>=0.10.1',
     'python-scrapyd-api>=2.0.1',
@@ -80,18 +80,21 @@ install_requires = [
 ]
 
 packages = find_packages()
+URL = 'https://github.com/inspirehep/inspire-crawler'
 
 
 setup(
     name='inspire-crawler',
-    autosemver=True,
+    autosemver={
+        'bugtracker_url': URL + '/issues/'
+    },
     description=__doc__,
     long_description=readme,
     keywords='invenio inspire scrapy crawler',
     license='GPLv2',
     author='CERN',
     author_email='feedback@inspirehep.net',
-    url='https://github.com/inspirehep/inspire-crawler',
+    url=URL,
     packages=packages,
     zip_safe=False,
     include_package_data=True,
