@@ -47,13 +47,51 @@ from .models import CrawlerJob, JobStatus, CrawlerWorkflowObject
 
 
 @shared_task(ignore_results=True)
-def submit_results(job_id, results_uri, errors, log_file):
-    """Check results for current job."""
-    results_path = urlparse(results_uri).path
-    if not os.path.exists(results_path):
-        raise CrawlerInvalidResultsPath(
-            "Path specified in result does not exist: {0}".format(results_path)
+def submit_results(job_id, errors, log_file, results_uri, results_data=None):
+    """Receive the submission of the results of a crawl job.
+
+    Then it spawns the appropiate workflow according to whichever workflow
+    the crawl job specifies.
+
+    :param job_id: Id of the crawler job.
+    :param errors: Errors that happened, if any (seems ambiguous)
+    :param log_file: Path to the log file of the crawler job.
+    :param results_uri: URI to the file containing the results of the crawl
+       job, namely the records extracted.
+    :param results_data: Optional data payload with the results list, to skip
+        retrieving them from the `results_uri`, useful for slow or unreliable
+        storages.
+    """
+    def _extract_results_data(results_path):
+        if not os.path.exists(results_path):
+            raise CrawlerInvalidResultsPath(
+                "Path specified in result does not exist: {0}".format(
+                    results_path
+                )
+            )
+
+        current_app.logger.info(
+            'Parsing records from {}'.format(results_path)
         )
+        results_data = []
+        with open(results_path) as records:
+            lines = [
+                line.strip() for line in records.readlines()
+                if line.strip()
+            ]
+            for line in lines:
+                current_app.logger.debug(
+                    'Reading record line: {}'.format(line)
+                )
+                record = json.loads(line)
+                results_data.append(record)
+
+        current_app.logger.debug(
+            'Read {} records from {}'.format(len(results_data), results_path)
+        )
+        return results_data
+
+    results_path = urlparse(results_uri).path
     job = CrawlerJob.get_by_job(job_id)
     job.logs = log_file
     job.results = results_uri
@@ -64,29 +102,28 @@ def submit_results(job_id, results_uri, errors, log_file):
         db.session.commit()
         raise CrawlerJobError(str(errors))
 
-    current_app.logger.info('Parsing records from {}'.format(results_path))
-    with open(results_path) as records:
-        lines = records.readlines()
-        for line in lines:
-            current_app.logger.debug(
-                'Parsing record line: {}'.format(line)
-            )
-            record = json.loads(line)
-            obj = workflow_object_class.create(data=record)
-            obj.extra_data['crawler_job_id'] = job_id
-            obj.extra_data['crawler_results_path'] = results_path
-            obj.extra_data['record_extra'] = record.pop('extra_data', {})
-            obj.data_type = current_app.config['CRAWLER_DATA_TYPE']
-            obj.save()
-            db.session.commit()
+    if results_data is None:
+        results_data = _extract_results_data(results_path)
 
-            crawler_object = CrawlerWorkflowObject(
-                job_id=job_id, object_id=obj.id
-            )
-            db.session.add(crawler_object)
-            obj.start_workflow(job.workflow, delayed=True)
+    for record in results_data:
+        current_app.logger.debug(
+            'Parsing record: {}'.format(record)
+        )
+        obj = workflow_object_class.create(data=record)
+        obj.extra_data['crawler_job_id'] = job_id
+        obj.extra_data['crawler_results_path'] = results_path
+        obj.extra_data['record_extra'] = record.pop('extra_data', {})
+        obj.data_type = current_app.config['CRAWLER_DATA_TYPE']
+        obj.save()
+        db.session.commit()
 
-        current_app.logger.info('Parsed {} records.'.format(len(lines)))
+        crawler_object = CrawlerWorkflowObject(
+            job_id=job_id, object_id=obj.id
+        )
+        db.session.add(crawler_object)
+        obj.start_workflow(job.workflow, delayed=True)
+
+    current_app.logger.info('Parsed {} records.'.format(len(results_data)))
 
     job.status = JobStatus.FINISHED
     job.save()
