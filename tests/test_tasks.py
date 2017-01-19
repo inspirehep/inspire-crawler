@@ -51,9 +51,8 @@ from inspire_crawler.receivers import receive_oaiharvest_job
 
 
 @pytest.fixture()
-def sample_record():
-    """Provide file fixture."""
-    return pkg_resources.resource_string(
+def sample_records_filename():
+    return pkg_resources.resource_filename(
         __name__,
         os.path.join(
             'fixtures',
@@ -63,28 +62,35 @@ def sample_record():
 
 
 @pytest.fixture()
-def sample_record_filename():
-    """Provide file fixture."""
-    return "file://" + pkg_resources.resource_filename(
-        __name__,
-        os.path.join(
-            'fixtures',
-            'records.jl'
-        )
-    )
+def sample_records_uri(sample_records_filename):
+    return "file://" + sample_records_filename
 
 
-def test_tasks(app, db, halt_workflow, sample_record_filename):
+@pytest.fixture()
+def sample_records(sample_records_filename):
+    with open(sample_records_filename) as records_fd:
+        records = [
+            json.loads(line.strip()) for line in records_fd.readlines()
+        ]
+
+    return records
+
+
+@pytest.fixture()
+def sample_record_string(sample_records_filename):
+    with open(sample_records_filename) as records_fd:
+        line = records_fd.readline()
+
+    return line
+
+
+def test_tasks(app, db, halt_workflow, sample_records_uri):
     """Test tasks."""
     job_id = uuid.uuid4().hex  # init random value
     with app.app_context():
-        with pytest.raises(CrawlerInvalidResultsPath):
-            submit_results(job_id, results_uri="", errors=None, log_file=None)
-        with pytest.raises(CrawlerInvalidResultsPath):
-            submit_results(job_id, results_uri="", errors=None, log_file=None)
         with pytest.raises(CrawlerJobNotExistError):
             submit_results(
-                job_id, results_uri=sample_record_filename,
+                job_id, results_uri=sample_records_uri,
                 errors=None, log_file=None
             )
 
@@ -97,33 +103,35 @@ def test_tasks(app, db, halt_workflow, sample_record_filename):
         )
         db.session.commit()
 
+        with pytest.raises(CrawlerInvalidResultsPath):
+            submit_results(job_id, results_uri="", errors=None, log_file=None)
+
     with app.app_context():
         job = CrawlerJob.get_by_job(job_id)
-
         assert job
         assert str(job.status)
         assert job.status == JobStatus.PENDING
 
         submit_results(
             job_id=job_id,
-            results_uri=sample_record_filename,
+            results_uri=sample_records_uri,
             errors=None,
             log_file="/foo/bar"
         )
 
         job = CrawlerJob.get_by_job(job_id)
         assert job.logs == "/foo/bar"
-        assert job.results == sample_record_filename
+        assert job.results == sample_records_uri
 
         workflow = WorkflowObject.get(1)
         assert workflow
         assert workflow.extra_data['crawler_job_id'] == job_id
         crawler_results_path = workflow.extra_data['crawler_results_path']
-        assert crawler_results_path == urlparse(sample_record_filename).path
+        assert crawler_results_path == urlparse(sample_records_uri).path
 
         with pytest.raises(CrawlerJobError):
             submit_results(
-                job_id, results_uri=sample_record_filename,
+                job_id, results_uri=sample_records_uri,
                 errors=["Some error"], log_file=None
             )
 
@@ -131,8 +139,60 @@ def test_tasks(app, db, halt_workflow, sample_record_filename):
         assert job.status == JobStatus.ERROR
 
 
+def test_submit_results_with_results_data(app, db, halt_workflow,
+                                          sample_records_uri, sample_records):
+    """Test submit_results passing the data as payload."""
+    job_id = uuid.uuid4().hex  # init random value
+    with app.app_context():
+        CrawlerJob.create(
+            job_id=job_id,
+            spider="Test",
+            workflow=halt_workflow.__name__,
+            logs=None,
+            results=None,
+        )
+        db.session.commit()
+
+    with app.app_context():
+        job = CrawlerJob.get_by_job(job_id)
+        assert job
+        assert str(job.status)
+        assert job.status == JobStatus.PENDING
+
+        dummy_records_uri = sample_records_uri + 'idontexist'
+        submit_results(
+            job_id=job_id,
+            results_uri=dummy_records_uri,
+            results_data=sample_records,
+            errors=None,
+            log_file="/foo/bar"
+        )
+
+        job = CrawlerJob.get_by_job(job_id)
+        assert job.logs == "/foo/bar"
+        assert job.results == dummy_records_uri
+
+        workflow = WorkflowObject.get(1)
+        assert workflow
+        assert workflow.extra_data['crawler_job_id'] == job_id
+        crawler_results_path = workflow.extra_data['crawler_results_path']
+        assert crawler_results_path == urlparse(dummy_records_uri).path
+
+        with pytest.raises(CrawlerJobError):
+            submit_results(
+                job_id,
+                results_uri=dummy_records_uri,
+                results_data=sample_records,
+                errors=["Some error"],
+                log_file=None,
+            )
+
+        job = CrawlerJob.get_by_job(job_id)
+        assert job.status == JobStatus.ERROR
+
+
 @responses.activate
-def test_receivers(app, db, sample_record):
+def test_receivers(app, db, sample_record_string):
     """Test receivers."""
     job_id = uuid.uuid4().hex
     responses.add(
@@ -142,7 +202,7 @@ def test_receivers(app, db, sample_record):
     )
 
     mock_record = MagicMock()
-    prop_mock = PropertyMock(return_value=sample_record)
+    prop_mock = PropertyMock(return_value=sample_record_string)
     type(mock_record).raw = prop_mock
     with app.app_context():
         assert receive_oaiharvest_job(
@@ -162,7 +222,7 @@ def test_receivers(app, db, sample_record):
 
 
 @responses.activate
-def test_receivers_exception(app, db, sample_record):
+def test_receivers_exception(app, db, sample_record_string):
     """Test receivers."""
     responses.add(
         responses.POST, "http://localhost:6800/schedule.json",
@@ -171,7 +231,7 @@ def test_receivers_exception(app, db, sample_record):
     )
 
     mock_record = MagicMock()
-    prop_mock = PropertyMock(return_value=sample_record)
+    prop_mock = PropertyMock(return_value=sample_record_string)
     type(mock_record).raw = prop_mock
 
     with app.app_context():
