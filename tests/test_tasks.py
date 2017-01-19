@@ -69,11 +69,12 @@ def sample_records_uri(sample_records_filename):
 @pytest.fixture()
 def sample_records(sample_records_filename):
     with open(sample_records_filename) as records_fd:
-        records = [
+        records = (
             json.loads(line.strip()) for line in records_fd.readlines()
-        ]
+            if line.strip()
+        )
 
-    return records
+    return list(records)
 
 
 @pytest.fixture()

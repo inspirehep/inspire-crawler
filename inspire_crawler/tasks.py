@@ -75,10 +75,10 @@ def submit_results(job_id, errors, log_file, results_uri, results_data=None):
         )
         results_data = []
         with open(results_path) as records:
-            lines = [
-                line.strip() for line in records.readlines()
-                if line.strip()
-            ]
+            lines = (
+                line.strip() for line in records if line.strip()
+            )
+
             for line in lines:
                 current_app.logger.debug(
                     'Reading record line: {}'.format(line)
