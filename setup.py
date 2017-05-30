@@ -41,7 +41,7 @@ tests_require = [
 
 extras_require = {
     'docs': [
-        'Sphinx>=1.4',
+        'Sphinx>=1.5,<1.6',
     ],
     'postgresql': [
         'invenio-db[postgresql,versioning]>=1.0.0a9',
@@ -74,8 +74,9 @@ install_requires = [
     'python-scrapyd-api>=2.0.1',
     'pathlib2>=2.1.0',
     'invenio-celery>=1.0.0a3',
+    'celery<4.0',
     # 'workflow>=2.0.0',
-    'invenio_workflows~=6.0.2',
+    'invenio_workflows~=6.0',
     # 'invenio_oaiharvester>=1.0.0a1',
 ]
 
