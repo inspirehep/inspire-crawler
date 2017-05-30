@@ -44,14 +44,10 @@ env:
 
 python:
   - "2.7"
-  # - "3.3"
-  # - "3.4"
-  # - "3.5"
 
 before_install:
   - "travis_retry pip install --upgrade pip setuptools py"
   - "travis_retry pip install twine wheel coveralls"
-  - "mysql -e 'CREATE DATABASE IF NOT EXISTS invenio;' -uroot"
   - "psql -c 'CREATE DATABASE invenio;' -U postgres"
 
 install:
