@@ -27,6 +27,7 @@
 from __future__ import absolute_import, print_function
 
 from . import config
+from .cli import crawler as crawler_cmd
 
 
 class INSPIRECrawler(object):
@@ -41,6 +42,7 @@ class INSPIRECrawler(object):
         """Flask application initialization."""
         self.init_config(app)
         app.extensions['inspire-crawler'] = self
+        app.cli.add_command(crawler_cmd)
 
     def init_config(self, app):
         """Initialize configuration."""
