@@ -44,31 +44,44 @@ def get_crawler_instance(*args, **kwargs):
 
 
 def write_to_dir(records, output_dir, max_records=1000, encoding='utf-8'):
-    """Check if the output directory exists, and creates it if it does not.
+    """Write the given records iterable to the out dir.
 
-    :param records: harvested records.
+    :param records: iterable with the harvested records.
     :param output_dir: directory where the output should be sent.
     :param max_records: max number of records to be written in a single file.
 
-    :return: paths to files created, total number of records
+    :return: tuple with paths to files created, total number of records
+    processed.
     """
-    if not records:
-        return [], 0
+    def _write_batch(records_iterator, ammount, file_name):
+        processed_records = 0
+        exhausted = False
+        with codecs.open(file_name, 'w+', encoding=encoding) as fd:
+            fd.write('<ListRecords>')
+            for record in records_iterator:
+                fd.write(record.raw)
+                processed_records += 1
+                if processed_records == ammount:
+                    break
+            else:
+                exhausted = True
+
+            fd.write('</ListRecords>')
+
+        return exhausted, processed_records
 
     output_path = check_or_create_dir(output_dir)
+    processed = 0
+    iterator_exhausted = False
+    files = []
+    while not iterator_exhausted:
+        file_name = create_file_name(output_path)
+        iterator_exhausted, batch_processed = _write_batch(
+            records_iterator=records,
+            ammount=max_records,
+            file_name=file_name,
+        )
+        files.append(file_name)
+        processed += batch_processed
 
-    files_created = [create_file_name(output_path)]
-    total = 0  # total number of records processed
-    f = codecs.open(files_created[0], 'w+', encoding=encoding)
-    f.write('<ListRecords>')
-    for record in records:
-        total += 1
-        if total > 1 and total % max_records == 0:
-            # we need a new file to write to
-            f.close()
-            files_created.append(create_file_name(output_path))
-            f = codecs.open(files_created[-1], 'w+', encoding=encoding)
-        f.write(record.raw)
-    f.write('</ListRecords>')
-    f.close()
-    return files_created, total
+    return files, processed
