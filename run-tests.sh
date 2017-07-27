@@ -23,7 +23,6 @@
 # as an Intergovernmental Organization or submit itself to any jurisdiction.
 
 
-pydocstyle inspire_crawler && \
 sphinx-build -qnNW docs docs/_build/html && \
 python setup.py test && \
 sphinx-build -qnNW -b doctest docs docs/_build/doctest
