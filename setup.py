@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # This file is part of Invenio.
-# Copyright (C) 2016 CERN.
+# Copyright (C) 2016, 2017 CERN.
 #
 # Invenio is free software; you can redistribute it
 # and/or modify it under the terms of the GNU General Public License as
@@ -75,9 +75,8 @@ install_requires = [
     'pathlib2>=2.1.0',
     'invenio-celery>=1.0.0a3',
     'celery<4.0',
-    # 'workflow>=2.0.0',
     'invenio_workflows~=6.0',
-    # 'invenio_oaiharvester>=1.0.0a1',
+    'invenio_oaiharvester>=1.0.0a3',
 ]
 
 packages = find_packages()
