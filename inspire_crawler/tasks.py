@@ -150,16 +150,23 @@ def schedule_crawl(spider, workflow, **kwargs):
         **crawler_arguments
     )
     if job_id:
-        CrawlerJob.create(
+        crawler_job = CrawlerJob.create(
             job_id=job_id,
             spider=spider,
             workflow=workflow,
         )
         db.session.commit()
-        current_app.logger.info("Scheduled job {0}".format(job_id))
+        current_app.logger.info(
+            "Scheduled scrapyd job with id: {0}".format(job_id)
+        )
+        current_app.logger.info(
+            "Created crawler job with id:{0}".format(crawler_job.id)
+        )
     else:
         raise CrawlerScheduleError(
             "Could not schedule '{0}' spider for project '{1}'".format(
                 spider, current_app.config.get('CRAWLER_PROJECT')
             )
         )
+
+    return crawler_job

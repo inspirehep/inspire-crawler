@@ -84,13 +84,16 @@ class CrawlerJob(db.Model):
     def create(cls, job_id, spider, workflow, results=None,
                logs=None, status=JobStatus.PENDING):
         """Create a new entry for a scheduled crawler job."""
-        obj = cls(job_id=job_id,
-                  spider=spider,
-                  workflow=workflow,
-                  results=results,
-                  logs=logs,
-                  status=status)
+        obj = cls(
+            job_id=job_id,
+            spider=spider,
+            workflow=workflow,
+            results=results,
+            logs=logs,
+            status=status,
+        )
         db.session.add(obj)
+        return obj
 
     @classmethod
     def get_by_job(cls, job_id):

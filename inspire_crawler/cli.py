@@ -32,8 +32,11 @@ import sys
 import click
 from flask.cli import with_appcontext
 from invenio_db import db
+from scrapyd_api.exceptions import ScrapydResponseError
 
 from . import models
+from .tasks import schedule_crawl
+from .utils import list_spiders
 
 
 CRAWLER_JOB_PROPS_TO_IGNORE = [
@@ -90,7 +93,7 @@ def job():
 
 
 @job.command('list')
-@click.option('--tail', default=0, help='Number of entries to show.')
+@click.option('--tail', default=50, help='Number of entries to show.')
 @with_appcontext
 def list_jobs(tail):
     """Show info about the existing crawler jobs."""
@@ -110,7 +113,28 @@ def list_jobs(tail):
 @with_appcontext
 def get_job_logs(id):
     """Get the crawl logs from the job."""
-    crawler_job = models.CrawlerJob.query.filter_by(id=id).one()
+    crawler_job = models.CrawlerJob.query.filter_by(id=id).one_or_none()
+    if crawler_job is None:
+        click.secho(
+            (
+                "CrawlJob %s was not found, maybe it's not a crawl job?" %
+                id
+            ),
+            fg='yellow',
+        )
+        sys.exit(1)
+
+    if crawler_job.logs is None:
+        click.secho(
+            (
+                "CrawlJob %s has no log, it might be that it has not run "
+                "yet, you can try again later." %
+                id
+            ),
+            fg='yellow',
+        )
+        sys.exit(1)
+
     _show_file(
         file_path=crawler_job.logs,
         header_name='Log',
@@ -135,7 +159,7 @@ def workflow():
 
 
 @workflow.command('list')
-@click.option('--tail', default=0, help='Number of entries to show.')
+@click.option('--tail', default=50, help='Number of entries to show.')
 @with_appcontext
 def list_crawler_workflows(tail):
     """Show info about the existing crawler workflows."""
@@ -214,3 +238,77 @@ def get_job_results_from_workflow(workflow_id):
         file_path=query_result[0],
         header_name='Results',
     )
+
+
+@crawler.command('schedule')
+@click.argument('spider_name')
+@click.argument('workflow_name')
+@click.option(
+    '--dont-force-crawl',
+    is_flag=True,
+    help=(
+        'If it should use the crawl-once mechanisms and crawl the item only '
+        'when it was not crawled before.'
+    ),
+)
+@click.option('--kwarg', multiple=True)
+@with_appcontext
+def schedule_crawl_cli(spider_name, workflow_name, dont_force_crawl, kwarg):
+    """Schedule a new crawl.
+
+    Note:
+        Currently the oaiharvesting is done on inspire side, before this, so
+        it's not supported here yet.
+    """
+    extra_kwargs = {}
+    for extra_kwarg in kwarg:
+        if '=' not in extra_kwarg:
+            raise TypeError(
+                'Bad formatted kwarg (%s), it should be in the form:\n'
+                '    --kwarg key=value' % extra_kwarg
+            )
+        key, value = extra_kwarg.split('=', 1)
+
+        extra_kwargs[key] = value
+
+    settings = {'CRAWL_ONCE_ENABLED': False}
+    if dont_force_crawl:
+        settings = {}
+
+    try:
+        crawler_job = schedule_crawl(
+            spider=spider_name,
+            workflow=workflow_name,
+            crawler_settings=settings,
+            **extra_kwargs
+        )
+    except ScrapydResponseError as error:
+        message = str(error)
+        if 'spider' in message and 'not found' in message:
+            click.echo('%s' % error)
+            click.echo('\n Available spiders:')
+            spiders = list_spiders()
+            click.echo('\n'.join(spiders))
+            raise click.Abort()
+        else:
+            raise
+
+    click.echo(
+        'Once the job is started, you can see the logs of the job with the '
+        'command:\n'
+        '    inspirehep crawler job list\n'
+        '    inspirehep crawler job logs %s\n'
+        '\n'
+        'and for the associated workflow (it\'s job_id should be %s):\n'
+        '    inspirehep crawler workflow list\n'
+        % (crawler_job.id, crawler_job.id)
+    )
+
+
+@crawler.command('list-spiders')
+@with_appcontext
+def list_spiders_cli():
+    """Show the list of currently available spiders in the scrapyd server.
+    """
+    spiders = list_spiders
+    click.echo('\n'.join(spiders))

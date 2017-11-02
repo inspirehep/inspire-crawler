@@ -25,13 +25,8 @@
 
 from __future__ import absolute_import, print_function
 
-import codecs
-
 from flask import current_app
-
 from scrapyd_api import ScrapydAPI
-
-from invenio_oaiharvester.utils import check_or_create_dir, create_file_name
 
 
 def get_crawler_instance(*args, **kwargs):
@@ -40,4 +35,13 @@ def get_crawler_instance(*args, **kwargs):
         current_app.config.get('CRAWLER_HOST_URL'),
         *args,
         **kwargs
+    )
+
+
+def list_spiders():
+    """Show the list of currently available spiders in the scrapyd server.
+    """
+    crawler = get_crawler_instance()
+    return crawler.list_spiders(
+        project=current_app.config.get('CRAWLER_PROJECT'),
     )
