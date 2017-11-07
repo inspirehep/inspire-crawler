@@ -75,7 +75,7 @@ install_requires = [
     'pathlib2>=2.1.0',
     'invenio-celery>=1.0.0a3',
     'celery<4.0',
-    'invenio_workflows~=6.0',
+    'invenio_workflows~=7.0',
     'invenio_oaiharvester>=1.0.0a3',
 ]
 
