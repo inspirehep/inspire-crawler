@@ -24,6 +24,8 @@
 
 """Crawler integration with INSPIRE-HEP."""
 
+from __future__ import absolute_import, print_function
+
 from setuptools import find_packages, setup
 
 readme = open('README.rst').read()
@@ -75,7 +77,7 @@ install_requires = [
     'pathlib2>=2.1.0',
     'invenio-celery>=1.0.0a3',
     'celery<4.0',
-    'invenio_workflows~=6.0',
+    'invenio_workflows~=7.0',
     'invenio_oaiharvester>=1.0.0a3',
 ]
 
@@ -105,6 +107,9 @@ setup(
         ],
         'invenio_base.apps': [
             'inspire_crawler = inspire_crawler:INSPIRECrawler',
+        ],
+        'invenio_db.alembic': [
+            'inspire_crawler = inspire_crawler:alembic',
         ],
         'invenio_db.models': [
             'inspire_crawler = inspire_crawler.models',
