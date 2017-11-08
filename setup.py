@@ -24,6 +24,8 @@
 
 """Crawler integration with INSPIRE-HEP."""
 
+from __future__ import absolute_import, print_function
+
 from setuptools import find_packages, setup
 
 readme = open('README.rst').read()
@@ -105,6 +107,9 @@ setup(
         ],
         'invenio_base.apps': [
             'inspire_crawler = inspire_crawler:INSPIRECrawler',
+        ],
+        'invenio_db.alembic': [
+            'inspire_crawler = inspire_crawler:alembic',
         ],
         'invenio_db.models': [
             'inspire_crawler = inspire_crawler.models',
