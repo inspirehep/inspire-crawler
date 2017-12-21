@@ -110,6 +110,7 @@ def submit_results(job_id, errors, log_file, results_uri, results_data=None):
             'Parsing record: {}'.format(record)
         )
         obj = workflow_object_class.create(data=record)
+        obj.extra_data['source_data'] = record
         obj.extra_data['crawler_job_id'] = job_id
         obj.extra_data['crawler_results_path'] = results_path
         obj.extra_data['record_extra'] = record.pop('extra_data', {})
