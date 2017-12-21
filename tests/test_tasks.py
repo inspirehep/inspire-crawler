@@ -126,9 +126,15 @@ def test_tasks(app, db, halt_workflow, sample_records_uri):
 
         workflow = WorkflowObject.get(1)
         assert workflow
-        assert workflow.extra_data['crawler_job_id'] == job_id
-        crawler_results_path = workflow.extra_data['crawler_results_path']
-        assert crawler_results_path == urlparse(sample_records_uri).path
+        extra_data = workflow.extra_data
+        assert 'source_data' in extra_data
+        assert 'data' in extra_data['source_data']
+        assert 'extra_data' in extra_data['source_data']
+        expected_extra_data = {
+            'crawler_job_id': job_id,
+            'crawler_results_path': urlparse(sample_records_uri).path
+        }
+        assert expected_extra_data == extra_data['source_data']['extra_data']
 
         with pytest.raises(CrawlerJobError):
             submit_results(
