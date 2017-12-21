@@ -25,6 +25,7 @@
 
 from __future__ import absolute_import, print_function
 
+import copy
 import json
 import os
 
@@ -110,10 +111,20 @@ def submit_results(job_id, errors, log_file, results_uri, results_data=None):
             'Parsing record: {}'.format(record)
         )
         obj = workflow_object_class.create(data=record)
-        obj.extra_data['source_data'] = record
-        obj.extra_data['crawler_job_id'] = job_id
-        obj.extra_data['crawler_results_path'] = results_path
-        obj.extra_data['record_extra'] = record.pop('extra_data', {})
+        extra_data = {
+            'crawler_job_id': job_id,
+            'crawler_results_path': results_path,
+        }
+        record_extra = record.pop('extra_data', {})
+        if record_extra:
+            extra_data['record_extra'] = record_extra
+
+        obj.extra_data['source_data'] = {
+            'data': copy.deepcopy(record),
+            'extra_data': copy.deepcopy(extra_data),
+        }
+        obj.extra_data.update(extra_data)
+
         obj.data_type = current_app.config['CRAWLER_DATA_TYPE']
         obj.save()
         db.session.commit()
