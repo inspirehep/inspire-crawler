@@ -61,3 +61,9 @@ You can also pass arguments directly to the scheduler with kwargs.
 """
 
 CRAWLER_OAIHARVEST_OUTPUT_DIRECTORY = "crawls"
+
+
+CRAWLER_CELERY_QUEUE = "harvests"
+"""Name of the celery queue to use for harvests, if set to 'None' will not use
+any specific name.
+"""

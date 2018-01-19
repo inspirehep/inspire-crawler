@@ -38,6 +38,7 @@ from flask import current_app
 from invenio_db import db
 
 from invenio_workflows.proxies import workflow_object_class
+from invenio_workflows.tasks import start
 
 from .errors import (
     CrawlerInvalidResultsPath,
@@ -133,7 +134,15 @@ def submit_results(job_id, errors, log_file, results_uri, results_data=None):
             job_id=job_id, object_id=obj.id
         )
         db.session.add(crawler_object)
-        obj.start_workflow(job.workflow, delayed=True)
+        queue = current_app.config['CRAWLER_DATA_TYPE']
+
+        start.apply_async(
+            kwargs={
+                'workflow_name': job.workflow,
+                'object_id': obj.id,
+            },
+            queue=queue,
+        )
 
     current_app.logger.info('Parsed {} records.'.format(len(results_data)))
 
