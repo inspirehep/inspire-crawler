@@ -134,7 +134,7 @@ def submit_results(job_id, errors, log_file, results_uri, results_data=None):
             job_id=job_id, object_id=obj.id
         )
         db.session.add(crawler_object)
-        queue = current_app.config['CRAWLER_DATA_TYPE']
+        queue = current_app.config['CRAWLER_CELERY_QUEUE']
 
         start.apply_async(
             kwargs={
