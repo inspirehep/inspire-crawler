@@ -190,4 +190,4 @@ def schedule_crawl(spider, workflow, **kwargs):
             )
         )
 
-    return crawler_job
+    return str(crawler_job.job_id)
