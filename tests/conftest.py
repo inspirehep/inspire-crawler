@@ -36,6 +36,7 @@ from flask_celeryext import FlaskCeleryExt
 from flask_cli import FlaskCLI
 from invenio_db import InvenioDB, db as db_
 from invenio_workflows import InvenioWorkflows
+from invenio_workflows_ui import InvenioWorkflowsUI
 from invenio_oaiharvester import InvenioOAIHarvester
 from inspire_crawler import INSPIRECrawler
 
@@ -64,6 +65,7 @@ def app(request):
     FlaskCeleryExt(app)
     InvenioDB(app)
     InvenioWorkflows(app)
+    InvenioWorkflowsUI(app)
     InvenioOAIHarvester(app)
     INSPIRECrawler(app)
 

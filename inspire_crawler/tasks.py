@@ -37,6 +37,7 @@ from flask import current_app
 
 from invenio_db import db
 
+from invenio_workflows import ObjectStatus
 from invenio_workflows.proxies import workflow_object_class
 from invenio_workflows.tasks import start
 
@@ -111,20 +112,27 @@ def submit_results(job_id, errors, log_file, results_uri, results_data=None):
         current_app.logger.debug(
             'Parsing record: {}'.format(record)
         )
-        obj = workflow_object_class.create(data=record)
-        extra_data = {
-            'crawler_job_id': job_id,
-            'crawler_results_path': results_path,
-        }
-        record_extra = record.pop('extra_data', {})
-        if record_extra:
-            extra_data['record_extra'] = record_extra
+        record_error = record.get('error')
+        if record_error is not None:
+            obj = workflow_object_class.create(data=record['xml_record'])
+            obj.status = ObjectStatus.ERROR
+            obj.extra_data['_error_msg'] = record_error
+            obj.extra_data['callback_result'] = record['traceback']
+        else:
+            obj = workflow_object_class.create(data=record)
+            extra_data = {
+                'crawler_job_id': job_id,
+                'crawler_results_path': results_path,
+            }
+            record_extra = record.pop('extra_data', {})
+            if record_extra:
+                extra_data['record_extra'] = record_extra
 
-        obj.extra_data['source_data'] = {
-            'data': copy.deepcopy(record),
-            'extra_data': copy.deepcopy(extra_data),
-        }
-        obj.extra_data.update(extra_data)
+            obj.extra_data['source_data'] = {
+                'data': copy.deepcopy(record),
+                'extra_data': copy.deepcopy(extra_data),
+            }
+            obj.extra_data.update(extra_data)
 
         obj.data_type = current_app.config['CRAWLER_DATA_TYPE']
         obj.save()
@@ -136,13 +144,14 @@ def submit_results(job_id, errors, log_file, results_uri, results_data=None):
         db.session.add(crawler_object)
         queue = current_app.config['CRAWLER_CELERY_QUEUE']
 
-        start.apply_async(
-            kwargs={
-                'workflow_name': job.workflow,
-                'object_id': obj.id,
-            },
-            queue=queue,
-        )
+        if record_error is None:
+            start.apply_async(
+                kwargs={
+                    'workflow_name': job.workflow,
+                    'object_id': obj.id,
+                },
+                queue=queue,
+            )
 
     current_app.logger.info('Parsed {} records.'.format(len(results_data)))
 
