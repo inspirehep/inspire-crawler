@@ -38,8 +38,8 @@ from mock import MagicMock, PropertyMock
 
 from six.moves.urllib.parse import urlparse
 
-from invenio_workflows import WorkflowObject
-from inspire_crawler.models import JobStatus, CrawlerJob
+from invenio_workflows import WorkflowObject, ObjectStatus
+from inspire_crawler.models import JobStatus, CrawlerJob, CrawlerWorkflowObject
 from inspire_crawler.tasks import submit_results
 from inspire_crawler.errors import (
     CrawlerInvalidResultsPath,
@@ -250,3 +250,38 @@ def test_receivers_exception(app, db, sample_record_string):
                 spider="Test",
                 workflow="test"
             )
+
+
+def test_create_workflow_for_faulty_data(app, db, halt_workflow):
+    """Test submit_results passing the data as payload."""
+    job_id = uuid.uuid4().hex  # init random value
+    with app.app_context():
+        CrawlerJob.create(
+            job_id=job_id,
+            spider="desy",
+            workflow=halt_workflow.__name__,
+            logs=None,
+            results=None,
+        )
+        db.session.commit()
+
+    with app.app_context():
+        job = CrawlerJob.get_by_job(job_id)
+        assert job
+        assert str(job.status)
+        assert job.status == JobStatus.PENDING
+
+        test_data = [{'error': 'ValueError',
+                      'traceback': 'There was a ValueError',
+                      'xml_record': 'Just an XML string'}]
+        submit_results(
+            job_id=job_id,
+            results_uri='idontexist',
+            results_data=test_data,
+            errors=None,
+            log_file="/foo/bar"
+        )
+        workflow_id = CrawlerWorkflowObject.query.filter_by(job_id=job_id) \
+            .one().object_id
+        workflow = WorkflowObject.get(workflow_id)
+        assert workflow.status == ObjectStatus.ERROR
