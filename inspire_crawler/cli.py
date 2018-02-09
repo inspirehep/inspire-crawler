@@ -310,5 +310,5 @@ def schedule_crawl_cli(spider_name, workflow_name, dont_force_crawl, kwarg):
 def list_spiders_cli():
     """Show the list of currently available spiders in the scrapyd server.
     """
-    spiders = list_spiders
+    spiders = list_spiders()
     click.echo('\n'.join(spiders))
