@@ -60,3 +60,5 @@ target/
 
 AUTHORS
 CHANGELOG
+
+tests/test.db
