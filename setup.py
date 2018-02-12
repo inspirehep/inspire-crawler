@@ -72,7 +72,7 @@ setup_requires = [
 install_requires = [
     'autosemver~=0.2,>=0.2',
     'six>=1.9.0',
-    'Flask>=0.10.1',
+    'Flask>=0.12.2',
     'python-scrapyd-api>=2.0.1',
     'pathlib2>=2.1.0',
     'invenio-celery>=1.0.0a3',

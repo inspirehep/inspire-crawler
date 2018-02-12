@@ -32,8 +32,8 @@ import shutil
 import tempfile
 
 from flask import Flask
+from flask.cli import ScriptInfo
 from flask_celeryext import FlaskCeleryExt
-from flask_cli import FlaskCLI
 from invenio_db import InvenioDB, db as db_
 from invenio_workflows import InvenioWorkflows
 from invenio_workflows_ui import InvenioWorkflowsUI
@@ -61,7 +61,6 @@ def app(request):
             'SQLALCHEMY_DATABASE_URI', 'sqlite:///test.db'),
         TESTING=True,
     )
-    FlaskCLI(app)
     FlaskCeleryExt(app)
     InvenioDB(app)
     InvenioWorkflows(app)
@@ -98,3 +97,9 @@ def halt_workflow(app):
         HaltTest.__name__, HaltTest
     )
     return HaltTest
+
+
+@pytest.fixture()
+def script_info(app):
+    """Get ScriptInfo object for testing CLI."""
+    return ScriptInfo(create_app=lambda info: app)

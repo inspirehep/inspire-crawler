@@ -62,3 +62,6 @@ AUTHORS
 CHANGELOG
 
 tests/test.db
+
+# Twisted
+twistd.pid
