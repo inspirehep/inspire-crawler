@@ -22,35 +22,25 @@
 # waive the privileges and immunities granted to it by virtue of its status
 # as an Intergovernmental Organization or submit itself to any jurisdiction.
 
-"""CLI tests."""
-
 from __future__ import absolute_import, print_function
 
 import json
 
+import requests_mock
 from click.testing import CliRunner
-import responses
 
 from inspire_crawler.cli import crawler
 
 
-@responses.activate
-def test_list_spiders(script_info):
-    """Test list spiders CLI."""
-    expected = ['APS', 'BASE', 'CDS']
+def test_list_spiders_cli(script_info):
+    with requests_mock.Mocker() as requests_mocker:
+        requests_mocker.register_uri(
+            'GET', 'http://localhost:6800/listspiders.json?project=hepcrawl',
+            json={'spiders': ['APS', 'BASE', 'CDS'], 'status': 'ok'})
 
-    runner = CliRunner()
-    responses.add(
-        responses.GET,
-        'http://localhost:6800/listspiders.json?project=hepcrawl',
-        body=json.dumps({'spiders': expected, 'status': 'ok'}),
-        status=200
-    )
+        runner = CliRunner()
 
-    result = runner.invoke(crawler, ['list-spiders'], obj=script_info)
+        result = runner.invoke(crawler, ['list-spiders'], obj=script_info)
 
-    assert result.exit_code == 0
-
-    spiders = result.output.split()
-    for spider in spiders:
-        assert spider in expected
+        assert result.exit_code == 0
+        assert 'APS\nBASE\nCDS\n' == result.output
