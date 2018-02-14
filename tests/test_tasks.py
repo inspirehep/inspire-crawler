@@ -30,12 +30,12 @@ from __future__ import absolute_import, print_function
 import os
 import pkg_resources
 import pytest
-import responses
 import json
 import uuid
 
 from mock import MagicMock, PropertyMock
 
+import requests_mock
 from six.moves.urllib.parse import urlparse
 
 from invenio_workflows import WorkflowObject, ObjectStatus
@@ -198,58 +198,54 @@ def test_submit_results_with_results_data(app, db, halt_workflow,
         assert job.status == JobStatus.ERROR
 
 
-@responses.activate
 def test_receivers(app, db, sample_record_string):
-    """Test receivers."""
-    job_id = uuid.uuid4().hex
-    responses.add(
-        responses.POST, "http://localhost:6800/schedule.json",
-        body=json.dumps({"jobid": job_id, "status": "ok"}),
-        status=200
-    )
+    with requests_mock.Mocker() as requests_mocker:
+        job_id = uuid.uuid4().hex
 
-    mock_record = MagicMock()
-    prop_mock = PropertyMock(return_value=sample_record_string)
-    type(mock_record).raw = prop_mock
-    with app.app_context():
-        assert receive_oaiharvest_job(
-            request=None, records=[mock_record], name=""
-        ) is None
+        requests_mocker.register_uri(
+            'POST', 'http://localhost:6800/schedule.json',
+            json={'jobid': job_id, 'status': 'ok'})
 
-        receive_oaiharvest_job(
-            request=None,
-            records=[mock_record],
-            name="",
-            spider="Test",
-            workflow="test"
-        )
-        job = CrawlerJob.get_by_job(job_id)
+        mock_record = MagicMock()
+        prop_mock = PropertyMock(return_value=sample_record_string)
+        type(mock_record).raw = prop_mock
 
-        assert job
+        with app.app_context():
+            assert receive_oaiharvest_job(
+                request=None, records=[mock_record], name=""
+            ) is None
 
-
-@responses.activate
-def test_receivers_exception(app, db, sample_record_string):
-    """Test receivers."""
-    responses.add(
-        responses.POST, "http://localhost:6800/schedule.json",
-        body=json.dumps({"jobid": None, "status": "ok"}),
-        status=200
-    )
-
-    mock_record = MagicMock()
-    prop_mock = PropertyMock(return_value=sample_record_string)
-    type(mock_record).raw = prop_mock
-
-    with app.app_context():
-        with pytest.raises(CrawlerScheduleError):
             receive_oaiharvest_job(
                 request=None,
                 records=[mock_record],
-                name="",
-                spider="Test",
-                workflow="test"
+                name='',
+                spider='Test',
+                workflow='test'
             )
+            job = CrawlerJob.get_by_job(job_id)
+
+            assert job
+
+
+def test_receivers_exception(app, db, sample_record_string):
+    with requests_mock.Mocker() as requests_mocker:
+        requests_mocker.register_uri(
+            'POST', 'http://localhost:6800/schedule.json',
+            json={'jobid': None, 'status': 'ok'})
+
+        mock_record = MagicMock()
+        prop_mock = PropertyMock(return_value=sample_record_string)
+        type(mock_record).raw = prop_mock
+
+        with app.app_context():
+            with pytest.raises(CrawlerScheduleError):
+                receive_oaiharvest_job(
+                    request=None,
+                    records=[mock_record],
+                    name='',
+                    spider='Test',
+                    workflow='test'
+                )
 
 
 def test_create_workflow_for_faulty_data(app, db, halt_workflow):
