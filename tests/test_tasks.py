@@ -267,17 +267,90 @@ def test_create_workflow_for_faulty_data(app, db, halt_workflow):
         assert str(job.status)
         assert job.status == JobStatus.PENDING
 
-        test_data = [{'error': 'ValueError',
-                      'traceback': 'There was a ValueError',
-                      'xml_record': 'Just an XML string'}]
+        test_data = {
+            'errors': [
+                {
+                    'exception': 'ValueError',
+                    'traceback': 'ValueError on the line 23.'
+                }
+            ],
+            'source_data': 'Just an XML string',
+            'record': {},
+            'file_name': 'broken.xml'
+        }
         submit_results(
             job_id=job_id,
             results_uri='idontexist',
-            results_data=test_data,
+            results_data=[test_data],
             errors=None,
             log_file="/foo/bar"
         )
         workflow_id = CrawlerWorkflowObject.query.filter_by(job_id=job_id) \
             .one().object_id
         workflow = WorkflowObject.get(workflow_id)
+
+        expected_crawl_error = {
+            'errors': [
+                {
+                    'exception': 'ValueError',
+                    'traceback': 'ValueError on the line 23.'
+                }
+            ],
+            'source_data': 'Just an XML string',
+            'file_name': 'broken.xml'
+        }
+
         assert workflow.status == ObjectStatus.ERROR
+        assert workflow.data == test_data['record']
+        assert workflow.extra_data['crawl_errors'] == expected_crawl_error
+
+
+def test_create_error_workflow_for_wrong_crawl_result(app, db, halt_workflow):
+    job_id = uuid.uuid4().hex  # init random value
+    with app.app_context():
+        CrawlerJob.create(
+            job_id=job_id,
+            spider="desy",
+            workflow=halt_workflow.__name__,
+            logs=None,
+            results=None,
+        )
+        db.session.commit()
+
+    with app.app_context():
+        job = CrawlerJob.get_by_job(job_id)
+        assert job
+        assert str(job.status)
+        assert job.status == JobStatus.PENDING
+
+        test_data = {
+            'source_data': 'Just an XML string',
+            'record': {},
+            # missing 'errors' and 'file_name'
+        }
+        submit_results(
+            job_id=job_id,
+            results_uri='idontexist',
+            results_data=[test_data],
+            errors=None,
+            log_file="/foo/bar"
+        )
+        workflow_id = CrawlerWorkflowObject.query.filter_by(job_id=job_id) \
+            .one().object_id
+        workflow = WorkflowObject.get(workflow_id)
+
+        expected = {
+            'errors': [
+                {
+                    'exception': 'KeyError',
+                    'traceback': 'Wrong crawl result format. '
+                                 'Missing the key `errors`'
+                }
+            ],
+            'file_name': None,
+            'source_data': {'record': {}, 'source_data': 'Just an XML string'},
+        }
+
+        assert workflow.status == ObjectStatus.ERROR
+        assert workflow.data == {}
+        assert workflow.extra_data['crawl_errors'] == expected

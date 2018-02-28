@@ -49,6 +49,59 @@ from .errors import (
 from .models import CrawlerJob, JobStatus, CrawlerWorkflowObject
 
 
+def _extract_results_data(results_path):
+    if not os.path.exists(results_path):
+        raise CrawlerInvalidResultsPath(
+            "Path specified in result does not exist: {0}".format(
+                results_path
+            )
+        )
+
+    current_app.logger.info(
+        'Parsing records from {}'.format(results_path)
+    )
+    results_data = []
+    with open(results_path) as records:
+        lines = (
+            line.strip() for line in records if line.strip()
+        )
+
+        for line in lines:
+            current_app.logger.debug(
+                'Reading line: {}'.format(line)
+            )
+            crawl_result = json.loads(line)
+            results_data.append(crawl_result)
+
+    current_app.logger.debug(
+        'Read {} records from {}'.format(len(results_data), results_path)
+    )
+    return results_data
+
+
+def _check_crawl_result_format(crawl_result):
+    crawl_result['record']
+    crawl_result['errors']
+    crawl_result['source_data']
+    crawl_result['file_name']
+
+
+def _crawl_result_from_exception(exception, wrong_crawl_result):
+    return {
+        'record': {},
+        'errors': [
+            {
+                'exception': exception.__class__.__name__,
+                'traceback':
+                    'Wrong crawl result format. Missing the key `{}`'
+                    .format(exception.message),
+            }
+        ],
+        'source_data': wrong_crawl_result,
+        'file_name': wrong_crawl_result.get('file_name')
+    }
+
+
 @shared_task(ignore_results=True)
 def submit_results(job_id, errors, log_file, results_uri, results_data=None):
     """Receive the submission of the results of a crawl job.
@@ -65,35 +118,6 @@ def submit_results(job_id, errors, log_file, results_uri, results_data=None):
         retrieving them from the `results_uri`, useful for slow or unreliable
         storages.
     """
-    def _extract_results_data(results_path):
-        if not os.path.exists(results_path):
-            raise CrawlerInvalidResultsPath(
-                "Path specified in result does not exist: {0}".format(
-                    results_path
-                )
-            )
-
-        current_app.logger.info(
-            'Parsing records from {}'.format(results_path)
-        )
-        results_data = []
-        with open(results_path) as records:
-            lines = (
-                line.strip() for line in records if line.strip()
-            )
-
-            for line in lines:
-                current_app.logger.debug(
-                    'Reading record line: {}'.format(line)
-                )
-                record = json.loads(line)
-                results_data.append(record)
-
-        current_app.logger.debug(
-            'Read {} records from {}'.format(len(results_data), results_path)
-        )
-        return results_data
-
     results_path = urlparse(results_uri).path
     job = CrawlerJob.get_by_job(job_id)
     job.logs = log_file
@@ -108,18 +132,24 @@ def submit_results(job_id, errors, log_file, results_uri, results_data=None):
     if results_data is None:
         results_data = _extract_results_data(results_path)
 
-    for record in results_data:
-        current_app.logger.debug(
-            'Parsing record: {}'.format(record)
-        )
-        record_error = record.get('error')
-        if record_error is not None:
-            obj = workflow_object_class.create(data=record['xml_record'])
+    for crawl_result in results_data:
+        crawl_result = copy.deepcopy(crawl_result)
+        try:
+            _check_crawl_result_format(crawl_result)
+        except KeyError as e:
+            crawl_result = _crawl_result_from_exception(e, crawl_result)
+
+        record = crawl_result.pop('record')
+        crawl_errors = crawl_result['errors']
+
+        current_app.logger.debug('Parsing record: {}'.format(record))
+
+        obj = workflow_object_class.create(data=record)
+        if crawl_errors:
             obj.status = ObjectStatus.ERROR
-            obj.extra_data['_error_msg'] = record_error
-            obj.extra_data['callback_result'] = record['traceback']
+            obj.extra_data['crawl_errors'] = crawl_result
+
         else:
-            obj = workflow_object_class.create(data=record)
             extra_data = {
                 'crawler_job_id': job_id,
                 'crawler_results_path': results_path,
@@ -144,7 +174,7 @@ def submit_results(job_id, errors, log_file, results_uri, results_data=None):
         db.session.add(crawler_object)
         queue = current_app.config['CRAWLER_CELERY_QUEUE']
 
-        if record_error is None:
+        if crawl_errors is None:
             start.apply_async(
                 kwargs={
                     'workflow_name': job.workflow,
