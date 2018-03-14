@@ -174,7 +174,7 @@ def submit_results(job_id, errors, log_file, results_uri, results_data=None):
         db.session.add(crawler_object)
         queue = current_app.config['CRAWLER_CELERY_QUEUE']
 
-        if crawl_errors is None:
+        if not crawl_errors:
             start.apply_async(
                 kwargs={
                     'workflow_name': job.workflow,
