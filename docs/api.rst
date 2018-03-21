@@ -28,10 +28,9 @@ API Docs
 Tasks API
 ---------
 .. automodule:: inspire_crawler.tasks
-   :members: submit_results, schedule_crawl
-   :undoc-members:
-   :show-inheritance:
+   :members:
 .. autotask:: inspire_crawler.tasks.submit_results
+.. autotask:: inspire_crawler.tasks.schedule_crawl
 
 
 Signal receivers
