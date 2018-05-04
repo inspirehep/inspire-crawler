@@ -37,9 +37,12 @@ from flask import current_app
 
 from invenio_db import db
 
-from invenio_workflows import ObjectStatus
-from invenio_workflows.proxies import workflow_object_class
-from invenio_workflows.tasks import start
+from invenio_workflows import (
+    ObjectStatus,
+    WorkflowEngine,
+    start,
+    workflow_object_class,
+)
 
 from .errors import (
     CrawlerInvalidResultsPath,
@@ -143,8 +146,10 @@ def submit_results(job_id, errors, log_file, results_uri, results_data=None):
         crawl_errors = crawl_result['errors']
 
         current_app.logger.debug('Parsing record: {}'.format(record))
-
+        engine = WorkflowEngine.with_name(job.workflow)
+        engine.save()
         obj = workflow_object_class.create(data=record)
+        obj.id_workflow = str(engine.uuid)
         if crawl_errors:
             obj.status = ObjectStatus.ERROR
             obj.extra_data['crawl_errors'] = crawl_result
