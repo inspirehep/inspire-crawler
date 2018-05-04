@@ -39,7 +39,6 @@ services:
   - postgresql
 
 env:
-  - EXTRAS=all,sqlite SQLALCHEMY_DATABASE_URI="sqlite:///test.db"
   - EXTRAS=all,postgresql SQLALCHEMY_DATABASE_URI="postgresql+psycopg2://postgres@localhost:5432/invenio"
 
 python:
