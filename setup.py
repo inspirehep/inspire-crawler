@@ -33,6 +33,7 @@ readme = open('README.rst').read()
 tests_require = [
     'check-manifest>=0.25',
     'coverage>=4.0',
+    'mock~=2.0,>=2.0.0',
     'pydocstyle>=1.0.0',
     'pytest-cache>=1.0',
     'pytest-cov>=1.8.0',
