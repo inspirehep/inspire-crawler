@@ -1,25 +1,23 @@
 ..
-    This file is part of Invenio.
-    Copyright (C) 2016 CERN.
+    This file is part of INSPIRE.
+    Copyright (C) 2014-2018 CERN.
 
-    Invenio is free software; you can redistribute it
-    and/or modify it under the terms of the GNU General Public License as
-    published by the Free Software Foundation; either version 2 of the
-    License, or (at your option) any later version.
+    INSPIRE is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
 
-    Invenio is distributed in the hope that it will be
-    useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-    General Public License for more details.
+    INSPIRE is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with Invenio; if not, write to the
-    Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
-    MA 02111-1307, USA.
+    along with INSPIRE. If not, see <http://www.gnu.org/licenses/>.
 
-    In applying this license, CERN does not
-    waive the privileges and immunities granted to it by virtue of its status
-    as an Intergovernmental Organization or submit itself to any jurisdiction.
+    In applying this licence, CERN does not waive the privileges and immunities
+    granted to it by virtue of its status as an Intergovernmental Organization
+    or submit itself to any jurisdiction.
 
 
 API Docs
@@ -27,11 +25,8 @@ API Docs
 
 Tasks API
 ---------
-.. automodule:: inspire_crawler.tasks
-   :members: submit_results, schedule_crawl
-   :undoc-members:
-   :show-inheritance:
-.. autotask:: inspire_crawler.tasks.submit_results
+.. autotask:: inspire_crawler.tasks.schedule_crawl(spider, workflow, **kwargs)
+.. autotask:: inspire_crawler.tasks.submit_results(job_id, errors, log_file, results_uri, results_data=None)
 
 
 Signal receivers

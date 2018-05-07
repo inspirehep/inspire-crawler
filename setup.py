@@ -33,6 +33,7 @@ readme = open('README.rst').read()
 tests_require = [
     'check-manifest>=0.25',
     'coverage>=4.0',
+    'mock~=2.0,>=2.0.0',
     'pydocstyle>=1.0.0',
     'pytest-cache>=1.0',
     'pytest-cov>=1.8.0',
@@ -76,7 +77,7 @@ install_requires = [
     'python-scrapyd-api>=2.0.1',
     'pathlib2>=2.1.0',
     'invenio-celery>=1.0.0a3',
-    'celery<4.0',
+    'celery~=4.0,>=4.1.0,<4.2.0',
     'invenio_workflows~=7.0',
     'invenio_workflows_ui~=2.0.1',
     'invenio_oaiharvester>=1.0.0a3',
