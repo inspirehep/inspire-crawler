@@ -24,26 +24,37 @@
 
 from __future__ import absolute_import, print_function
 
-import json
-
 import requests_mock
 from click.testing import CliRunner
-from mock import patch
+from mock import patch, MagicMock
 
 from inspire_crawler.cli import crawler
 
 
+@patch('inspire_crawler.cli.models')
 @patch('inspire_crawler.cli.schedule_crawl')
-def test_schedule_crawl_cli(mock_schedule_crawl, script_info):
+def test_schedule_crawl_cli(mock_schedule_crawl, mock_models, script_info):
     mock_schedule_crawl.return_value = '1dd85701-787a-433d-b23f-ea4a16c5b1c0'
+
+    mock_crawl_job = MagicMock()
+    mock_crawl_job.id = 1234
+
+    mock_filter_by = MagicMock()
+    mock_filter_by.one.return_value = mock_crawl_job
+
+    mock_models.CrawlerJob.query.filter_by.return_value = mock_filter_by
 
     runner = CliRunner()
 
     result = runner.invoke(
-        crawler, ['schedule', 'APS', 'article'], obj=script_info)
+        crawler,
+        ['schedule', 'APS', 'article'],
+        obj=script_info,
+    )
 
     assert 0 == result.exit_code
     assert '1dd85701-787a-433d-b23f-ea4a16c5b1c0' in result.output
+    assert str(mock_crawl_job.id) in result.output
 
 
 def test_list_spiders_cli(script_info):

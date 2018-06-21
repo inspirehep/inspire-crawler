@@ -276,7 +276,7 @@ def schedule_crawl_cli(spider_name, workflow_name, dont_force_crawl, kwarg):
         settings = {}
 
     try:
-        crawler_job_id = schedule_crawl(
+        crawler_job_uid = schedule_crawl(
             spider=spider_name,
             workflow=workflow_name,
             crawler_settings=settings,
@@ -293,6 +293,10 @@ def schedule_crawl_cli(spider_name, workflow_name, dont_force_crawl, kwarg):
         else:
             raise
 
+    crawler_job = models.CrawlerJob.query.filter_by(
+        job_id=crawler_job_uid
+    ).one()
+
     click.echo(
         'Once the job is started, you can see the logs of the job with the '
         'command:\n'
@@ -301,7 +305,7 @@ def schedule_crawl_cli(spider_name, workflow_name, dont_force_crawl, kwarg):
         '\n'
         'and for the associated workflow (it\'s job_id should be %s):\n'
         '    inspirehep crawler workflow list\n'
-        % (crawler_job_id, crawler_job_id)
+        % (crawler_job.id, crawler_job_uid)
     )
 
 
