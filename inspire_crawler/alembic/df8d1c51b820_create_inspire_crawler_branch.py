@@ -28,7 +28,7 @@ from __future__ import absolute_import, print_function
 # revision identifiers, used by Alembic.
 revision = 'df8d1c51b820'
 down_revision = None
-branch_labels = ()
+branch_labels = (u'inspire_crawler', )
 depends_on = None
 
 
