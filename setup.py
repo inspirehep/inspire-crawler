@@ -81,7 +81,8 @@ install_requires = [
     'invenio_workflows==7.0.6',
     'invenio_workflows_ui==2.0.19',
     'invenio_oaiharvester==1.0.0a4',
-    'invenio-files-rest==1.0.5'
+    'invenio-files-rest==1.0.5',
+    'invenio-access==1.3.0'
 ]
 
 packages = find_packages()
