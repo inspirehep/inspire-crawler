@@ -76,11 +76,11 @@ install_requires = [
     'Flask>=0.12.2',
     'python-scrapyd-api>=2.0.1',
     'pathlib2>=2.1.0',
-    'invenio-celery>=1.0.0a3',
+    'invenio-celery==1.0.0a3',
     'celery~=4.0,>=4.1.0',
     'invenio_workflows==7.0',
-    'invenio_workflows_ui~=2.0.1',
-    'invenio_oaiharvester>=1.0.0a3',
+    'invenio_workflows_ui==2.0.1',
+    'invenio_oaiharvester==1.0.0a3',
     'invenio-files-rest==1.0.0a3'
 ]
 
