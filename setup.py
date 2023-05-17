@@ -47,13 +47,13 @@ extras_require = {
         'Sphinx>=1.5,<1.6',
     ],
     'postgresql': [
-        'invenio-db[postgresql,versioning]==1.0.0',
+        'invenio-db[postgresql,versioning]==1.0.4',
     ],
     'mysql': [
-        'invenio-db[mysql,versioning]==1.0.0',
+        'invenio-db[mysql,versioning]==1.0.4',
     ],
     'sqlite': [
-        'invenio-db[versioning]==1.0.0',
+        'invenio-db[versioning]==1.0.4',
     ],
     'tests': tests_require,
 }
@@ -74,14 +74,14 @@ install_requires = [
     'autosemver~=0.2,>=0.2',
     'six>=1.9.0',
     'Flask>=0.12.2',
-    'python-scrapyd-api>=2.0.1',
+    'python-scrapyd-api==2.1.2',
     'pathlib2>=2.1.0',
-    'invenio-celery==1.0.0a3',
+    'invenio-celery==1.1.0',
     'celery~=4.0,>=4.1.0',
-    'invenio_workflows==7.0',
-    'invenio_workflows_ui==2.0.1',
-    'invenio_oaiharvester==1.0.0a3',
-    'invenio-files-rest==1.0.0a3'
+    'invenio_workflows==7.0.6',
+    'invenio_workflows_ui==2.0.19',
+    'invenio_oaiharvester==1.0.0a4',
+    'invenio-files-rest==1.0.5'
 ]
 
 packages = find_packages()
