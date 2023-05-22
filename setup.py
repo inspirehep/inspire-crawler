@@ -48,6 +48,7 @@ extras_require = {
     ],
     'postgresql': [
         'invenio-db[postgresql,versioning]==1.0.4',
+        'psycopg2-binary==2.8.4'
     ],
     'mysql': [
         'invenio-db[mysql,versioning]==1.0.4',
@@ -66,23 +67,42 @@ for name, reqs in extras_require.items():
 
 setup_requires = [
     'autosemver~=0.2,>=0.2',
-    'Babel>=1.3',
-    'pytest-runner>=2.6.2',
+    'Babel==2.8.0',
+    'pytest-runner==5.2',
 ]
 
 install_requires = [
     'autosemver~=0.2,>=0.2',
-    'six>=1.9.0',
-    'Flask>=0.12.2',
+    'six==1.14.0',
+    'Flask==0.12.5',
     'python-scrapyd-api==2.1.2',
-    'pathlib2>=2.1.0',
+    'pathlib2==2.3.5',
     'invenio-celery==1.1.0',
     'celery~=4.0,>=4.1.0',
     'invenio_workflows==7.0.6',
     'invenio_workflows_ui==2.0.19',
     'invenio_oaiharvester==1.0.0a4',
     'invenio-files-rest==1.0.5',
-    'invenio-access==1.3.0'
+    'invenio-access==1.3.0',
+    'invenio-accounts==1.1.1',
+    'ftfy==4.4.3',
+    "invenio-records==1.1.1",
+    "invenio-pidstore==1.1.0",
+    "SQLAlchemy==1.3.1",
+    "Werkzeug==0.16.1",
+    "invenio_rest==1.1.3",
+    "Flask_Security==3.0.0",
+    "Flask-SQLAlchemy @ git+https://github.com/inspirehep/flask-sqlalchemy.git@71abd94a1e2317a1365a25a31e719dbd9aafceea",
+    "WTForms==2.2.1",
+    "invenio-indexer==1.1.1",
+    "SQLAlchemy-Continuum==1.3.9",
+    "invenio_db==1.0.4",
+    "invenio-records-rest==1.6.4",
+    "jsonresolver==0.2.1",
+    "Flask-Breadcrumbs==0.4.0",
+    "invenio-base==1.2.0",
+    "invenio-i18n==1.1.1",
+    "invenio-search==1.2.3"
 ]
 
 packages = find_packages()
@@ -101,6 +121,7 @@ setup(
     author='CERN',
     author_email='feedback@inspirehep.net',
     url=URL,
+    version="3.0.4",
     packages=packages,
     zip_safe=False,
     include_package_data=True,
