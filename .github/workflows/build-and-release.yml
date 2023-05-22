@@ -10,6 +10,15 @@ env:
   EXTRAS: all,postgresql 
   SQLALCHEMY_DATABASE_URI: "postgresql+psycopg2://postgres:postgres@localhost:5432/invenio"
 
+permissions:
+  pull-requests: write
+  issues: write
+  repository-projects: write
+  contents: write
+  discussions: write
+  actions: write
+  checks: write
+
 jobs:
   test:
     services:
