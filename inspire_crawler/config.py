@@ -67,3 +67,6 @@ CRAWLER_CELERY_QUEUE = "harvests"
 """Name of the celery queue to use for harvests, if set to 'None' will not use
 any specific name.
 """
+
+CELERY_QUEUE_SPIDER_MAPPING = {}
+"""Mapping of spider names to corresponding queues for submitting results"""
