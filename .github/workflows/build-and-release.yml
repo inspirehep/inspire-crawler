@@ -69,8 +69,16 @@ jobs:
         run: |
           ./run-tests.sh
 
+  push-to-master-check:
+    if: ${{ github.ref == 'refs/heads/master' }}
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Deploying branch $GITHUB_REF"
+
   bump:
-    needs: test
+    needs: 
+      - test
+      - master
     runs-on: ubuntu-20.04
     steps:
       - name: Check out the repository
