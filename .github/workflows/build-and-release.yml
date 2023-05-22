@@ -78,7 +78,7 @@ jobs:
   bump:
     needs: 
       - test
-      - master
+      - push-to-master-check
     runs-on: ubuntu-20.04
     steps:
       - name: Check out the repository
