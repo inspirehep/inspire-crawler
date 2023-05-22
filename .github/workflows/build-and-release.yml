@@ -8,7 +8,7 @@ on:
 
 env:
   EXTRAS: all,postgresql 
-  SQLALCHEMY_DATABASE_URI: "postgresql+psycopg2://postgres@localhost:5432/invenio"
+  SQLALCHEMY_DATABASE_URI: "postgresql+psycopg2://postgres:postgres@localhost:5432/invenio"
 
 jobs:
   test:
@@ -19,7 +19,7 @@ jobs:
           - 5432:5432
         env:
           POSTGRES_PASSWORD: postgres
-          POSTGRES_USER: postgresql
+          POSTGRES_USER: postgres
           POSTGRES_DATABASE: invenio
     runs-on: ubuntu-20.04
     strategy:
