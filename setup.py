@@ -121,7 +121,7 @@ setup(
     author='CERN',
     author_email='feedback@inspirehep.net',
     url=URL,
-    version="3.0.6",
+    version="3.0.7",
     packages=packages,
     zip_safe=False,
     include_package_data=True,
