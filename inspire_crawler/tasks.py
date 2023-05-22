@@ -34,6 +34,7 @@ from six.moves.urllib.parse import urlparse
 from celery import shared_task
 
 from flask import current_app
+from flask_celeryext.app import current_celery_app
 
 from invenio_db import db
 
@@ -106,7 +107,7 @@ def _crawl_result_from_exception(exception, wrong_crawl_result):
 
 
 @shared_task(ignore_results=True)
-def submit_results(job_id, errors, log_file, results_uri, results_data=None):
+def submit_results(job_id, errors, log_file, results_uri, spider_name, results_data=None):
     """Receive the submission of the results of a crawl job.
 
     Then it spawns the appropiate workflow according to whichever workflow
@@ -177,7 +178,9 @@ def submit_results(job_id, errors, log_file, results_uri, results_data=None):
             job_id=job_id, object_id=obj.id
         )
         db.session.add(crawler_object)
-        queue = current_app.config['CRAWLER_CELERY_QUEUE']
+        queue = current_app.config['CELERY_QUEUE_SPIDER_MAPPING'].get(
+            spider_name, current_app.config['CRAWLER_CELERY_QUEUE']
+        )
 
         if not crawl_errors:
             start.apply_async(
@@ -199,6 +202,18 @@ def submit_results(job_id, errors, log_file, results_uri, results_data=None):
 def schedule_crawl(spider, workflow, **kwargs):
     """Schedule a crawl using configuration from the workflow objects."""
     from inspire_crawler.utils import get_crawler_instance
+
+    queue_size_limit = kwargs.get('queue_size_limit')
+    if queue_size_limit:
+        default_queue =  current_app.config.get('CRAWLER_CELERY_QUEUE', 'celery')
+        spider_results_queue_name = current_app.config['CELERY_QUEUE_SPIDER_MAPPING'].get(spider, default_queue)
+        with current_celery_app.connection_or_acquire() as conn:
+            current_queue_size = conn.default_channel.queue_declare(
+                queue=spider_results_queue_name
+            )
+        if current_queue_size > queue_size_limit:
+            current_app.logger.info('Queue is full. Current size: {}. Skipping crawl'.format(current_queue_size))
+            return
 
     crawler = get_crawler_instance()
     crawler_settings = current_app.config.get('CRAWLER_SETTINGS')

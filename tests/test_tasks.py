@@ -33,7 +33,7 @@ import pytest
 import json
 import uuid
 
-from mock import MagicMock, PropertyMock
+from mock import MagicMock, PropertyMock, patch
 
 import requests_mock
 from six.moves.urllib.parse import urlparse
@@ -92,7 +92,7 @@ def test_tasks(app, db, halt_workflow, sample_records_uri):
         with pytest.raises(CrawlerJobNotExistError):
             submit_results(
                 job_id, results_uri=sample_records_uri,
-                errors=None, log_file=None
+                errors=None, log_file=None, spider_name="test"
             )
 
         CrawlerJob.create(
@@ -105,7 +105,13 @@ def test_tasks(app, db, halt_workflow, sample_records_uri):
         db.session.commit()
 
         with pytest.raises(CrawlerInvalidResultsPath):
-            submit_results(job_id, results_uri="", errors=None, log_file=None)
+            submit_results(
+                job_id,
+                results_uri="",
+                errors=None,
+                log_file=None,
+                spider_name='test'
+            )
 
     with app.app_context():
         job = CrawlerJob.get_by_job(job_id)
@@ -117,7 +123,8 @@ def test_tasks(app, db, halt_workflow, sample_records_uri):
             job_id=job_id,
             results_uri=sample_records_uri,
             errors=None,
-            log_file="/foo/bar"
+            log_file="/foo/bar",
+            spider_name='Test'
         )
 
         job = CrawlerJob.get_by_job(job_id)
@@ -138,8 +145,11 @@ def test_tasks(app, db, halt_workflow, sample_records_uri):
 
         with pytest.raises(CrawlerJobError):
             submit_results(
-                job_id, results_uri=sample_records_uri,
-                errors=["Some error"], log_file=None
+                job_id,
+                results_uri=sample_records_uri,
+                errors=["Some error"],
+                log_file=None,
+                spider_name='test'
             )
 
         job = CrawlerJob.get_by_job(job_id)
@@ -172,7 +182,8 @@ def test_submit_results_with_results_data(app, db, halt_workflow,
             results_uri=dummy_records_uri,
             results_data=sample_records,
             errors=None,
-            log_file="/foo/bar"
+            log_file="/foo/bar",
+            spider_name='Test'
         )
 
         job = CrawlerJob.get_by_job(job_id)
@@ -192,6 +203,7 @@ def test_submit_results_with_results_data(app, db, halt_workflow,
                 results_data=sample_records,
                 errors=["Some error"],
                 log_file=None,
+                spider_name='Test'
             )
 
         job = CrawlerJob.get_by_job(job_id)
@@ -283,7 +295,8 @@ def test_create_workflow_for_faulty_data(app, db, halt_workflow):
             results_uri='idontexist',
             results_data=[test_data],
             errors=None,
-            log_file="/foo/bar"
+            log_file="/foo/bar",
+            spider_name='test'
         )
         workflow_id = CrawlerWorkflowObject.query.filter_by(job_id=job_id) \
             .one().object_id
@@ -333,7 +346,8 @@ def test_create_error_workflow_for_wrong_crawl_result(app, db, halt_workflow):
             results_uri='idontexist',
             results_data=[test_data],
             errors=None,
-            log_file="/foo/bar"
+            log_file="/foo/bar",
+            spider_name='desy'
         )
         workflow_id = CrawlerWorkflowObject.query.filter_by(job_id=job_id) \
             .one().object_id
@@ -354,3 +368,36 @@ def test_create_error_workflow_for_wrong_crawl_result(app, db, halt_workflow):
         assert workflow.status == ObjectStatus.ERROR
         assert workflow.data == {}
         assert workflow.extra_data['crawl_errors'] == expected
+
+
+@patch('inspire_crawler.tasks.start.apply_async')
+def test_submit_results_put_task_in_corrct_queue(
+    mock_submit_results,
+    app,
+    db,
+    halt_workflow,
+    sample_records_uri
+):
+    job_id = uuid.uuid4().hex  # init random value
+    with app.app_context():
+        CrawlerJob.create(
+            job_id=job_id,
+            spider="Test",
+            workflow=halt_workflow.__name__,
+            logs=None,
+            results=None,
+        )
+        db.session.commit()
+        job = CrawlerJob.get_by_job(job_id)
+        assert job
+        assert str(job.status)
+        assert job.status == JobStatus.PENDING
+
+        submit_results(
+            job_id=job_id,
+            results_uri=sample_records_uri,
+            errors=None,
+            log_file="/foo/bar",
+            spider_name='desy'
+        )
+        assert mock_submit_results.call_args[1]['queue'] == 'desy-harvest'
