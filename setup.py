@@ -88,7 +88,7 @@ install_requires = [
     'ftfy==4.4.3',
     "invenio-records==1.1.1",
     "invenio-pidstore==1.1.0",
-    "SQLAlchemy==1.3.1",
+    "SQLAlchemy==1.3.13",
     "Werkzeug==0.16.1",
     "invenio_rest==1.1.3",
     "Flask_Security==3.0.0",
