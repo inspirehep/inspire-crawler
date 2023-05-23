@@ -92,7 +92,7 @@ install_requires = [
     "Werkzeug==0.16.1",
     "invenio_rest==1.1.3",
     "Flask_Security==3.0.0",
-    "Flask-SQLAlchemy @ https://github.com/inspirehep/flask-sqlalchemy/archive/master.zip#egg=flask-sqlalchemy",
+    "Flask-SQLAlchemy @ https://github.com/inspirehep/flask-sqlalchemy/archive/master.zip#egg=flask-sqlalchemy-2.4.0",
     "WTForms==2.2.1",
     "invenio-indexer==1.1.1",
     "SQLAlchemy-Continuum==1.3.9",
