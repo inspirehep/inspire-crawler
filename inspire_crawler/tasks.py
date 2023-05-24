@@ -205,12 +205,13 @@ def schedule_crawl(spider, workflow, **kwargs):
 
     queue_size_limit = kwargs.get('queue_size_limit')
     if queue_size_limit:
+        del kwargs['queue_size_limit']
         default_queue =  current_app.config.get('CRAWLER_CELERY_QUEUE', 'celery')
         spider_results_queue_name = current_app.config['CELERY_QUEUE_SPIDER_MAPPING'].get(spider, default_queue)
         with current_celery_app.connection_or_acquire() as conn:
             current_queue_size = conn.default_channel.queue_declare(
-                queue=spider_results_queue_name
-            )
+                queue=spider_results_queue_name, passive=True
+            ).message_count
         if current_queue_size > queue_size_limit:
             current_app.logger.info('Queue is full. Current size: {}. Skipping crawl'.format(current_queue_size))
             return
