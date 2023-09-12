@@ -145,6 +145,7 @@ def submit_results(job_id, errors, log_file, results_uri, spider_name, results_d
 
         record = crawl_result.pop('record')
         crawl_errors = crawl_result['errors']
+        file = crawl_result['file_name']
 
         current_app.logger.debug('Parsing record: {}'.format(record))
         engine = WorkflowEngine.with_name(job.workflow)
@@ -159,6 +160,7 @@ def submit_results(job_id, errors, log_file, results_uri, spider_name, results_d
             extra_data = {
                 'crawler_job_id': job_id,
                 'crawler_results_path': results_path,
+                'source_file': file
             }
             record_extra = record.pop('extra_data', {})
             if record_extra:
