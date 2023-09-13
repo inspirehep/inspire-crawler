@@ -41,6 +41,11 @@ jobs:
       matrix:
         python-version: [2.7.17]
     steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+          fetch-depth: 0
       - name: Install python dependencies
         run: |
           pip2 install --user --upgrade pip setuptools
@@ -107,6 +112,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
         with:
+          python-version: 2.7.17
           fetch-depth: 0
 
       - name: Install python dependencies
