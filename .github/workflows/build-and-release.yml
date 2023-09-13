@@ -41,20 +41,12 @@ jobs:
       matrix:
         python-version: [2.7.17]
     steps:
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v2
-        with:
-          python-version: ${{ matrix.python-version }}
-          architecture: x64
-
       - name: Install python dependencies
         run: |
-          python -m pip install --upgrade pip
-          pip install --upgrade pip setuptools
-          pip install twine wheel coveralls
-          pip install -r requirements.txt
-          pip install -e .[${EXTRAS}]
-
+          pip2 install --user --upgrade pip setuptools
+          pip2 --no-cache-dir install --user setuptools wheel "urllib3==1.25.11"
+          pip2 --no-cache-dir install --user -r requirements.txt
+          pip2 --no-cache-dir install --user -e .[${EXTRAS}]
 
       - name: Show python dependencies
         run: |
@@ -117,17 +109,12 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Set up Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: 2.7.17
-
       - name: Install python dependencies
         run: |
-          pip install --upgrade pip setuptools
-          pip install twine wheel coveralls
-          pip install -r requirements.txt
-          pip install -e .[${EXTRAS}]
+          pip2 install --user --upgrade pip setuptools
+          pip2 --no-cache-dir install --user setuptools wheel "urllib3==1.25.11"
+          pip2 --no-cache-dir install --user -r requirements.txt
+          pip2 --no-cache-dir install --user -e .[${EXTRAS}]
 
       - name: Show python dependencies
         run: |
