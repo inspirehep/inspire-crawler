@@ -38,20 +38,23 @@ jobs:
           POSTGRES_DATABASE: invenio
     runs-on: ubuntu-20.04
     strategy:
-      matrix:
-        python-version: [2.7.17]
+      matrix: 
+        include:
+          - python: python2
+            pip: pip
     steps:
       - name: Checkout
         uses: actions/checkout@v2
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: ${{ matrix.python }}
           fetch-depth: 0
+
       - name: Install python dependencies
         run: |
-          pip2 install --user --upgrade pip setuptools
-          pip2 --no-cache-dir install --user setuptools wheel "urllib3==1.25.11"
-          pip2 --no-cache-dir install --user -r requirements.txt
-          pip2 --no-cache-dir install --user -e .[${EXTRAS}]
+          ${{ matrix.pip }} install --user --upgrade pip
+          ${{ matrix.pip }} --no-cache-dir install --user setuptools wheel
+          ${{ matrix.pip }} --no-cache-dir install --user -r requirements.txt
+          ${{ matrix.pip }} --no-cache-dir install --user -e .[${EXTRAS}]
 
       - name: Show python dependencies
         run: |
@@ -117,10 +120,10 @@ jobs:
 
       - name: Install python dependencies
         run: |
-          pip2 install --user --upgrade pip setuptools
-          pip2 --no-cache-dir install --user setuptools wheel "urllib3==1.25.11"
-          pip2 --no-cache-dir install --user -r requirements.txt
-          pip2 --no-cache-dir install --user -e .[${EXTRAS}]
+         pip install --user --upgrade pip
+         pip --no-cache-dir install --user setuptools wheel
+         pip --no-cache-dir install --user -r requirements.txt
+         pip --no-cache-dir install --user -e .[${EXTRAS}]
 
       - name: Show python dependencies
         run: |
