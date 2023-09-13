@@ -41,13 +41,17 @@ jobs:
       matrix: 
         include:
           - python: python2
-            pip: pip
+            pip: pip2.7
     steps:
       - name: Checkout
         uses: actions/checkout@v2
         with:
-          python-version: ${{ matrix.python }}
           fetch-depth: 0
+      
+      - name: Install pip2
+        run: |
+          wget https://bootstrap.pypa.io/pip/2.7/get-pip.py
+          sudo python2.7 get-pip.py
 
       - name: Install python dependencies
         run: |
@@ -58,7 +62,8 @@ jobs:
 
       - name: Show python dependencies
         run: |
-          pip freeze
+          ${{ matrix.python }} --version
+          ${{ matrix.pip }} freeze
 
       - name: Run tests
         run: |
