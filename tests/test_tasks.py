@@ -139,7 +139,8 @@ def test_tasks(app, db, halt_workflow, sample_records_uri):
         assert 'extra_data' in extra_data['source_data']
         expected_extra_data = {
             'crawler_job_id': job_id,
-            'crawler_results_path': urlparse(sample_records_uri).path
+            'crawler_results_path': urlparse(sample_records_uri).path,
+            'source_file': 'desy_records.xml'
         }
         assert expected_extra_data == extra_data['source_data']['extra_data']
 
