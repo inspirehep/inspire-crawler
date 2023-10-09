@@ -157,6 +157,40 @@ def test_tasks(app, db, halt_workflow, sample_records_uri):
         assert job.status == JobStatus.ERROR
 
 
+def test_submit_result_starts_a_workflow(
+    app,
+    db,
+    halt_workflow,
+    sample_records_uri,
+    sample_records
+):
+    """Test tasks."""
+    job_id = uuid.uuid4().hex  # init random value
+    with app.app_context():
+        CrawlerJob.create(
+            job_id=job_id,
+            spider="Test",
+            workflow=halt_workflow.__name__,
+            logs=None,
+            results=None,
+        )
+        db.session.commit()
+
+        job = CrawlerJob.get_by_job(job_id)
+        assert job
+        assert str(job.status)
+        assert job.status == JobStatus.PENDING
+
+        with patch('inspire_crawler.tasks.start') as mock:
+            submit_results(
+                job_id=job_id,
+                results_uri=sample_records_uri,
+                errors=None,
+                log_file="/foo/bar"
+            )
+            mock.apply_async.assert_called()
+
+
 def test_submit_results_with_results_data(app, db, halt_workflow,
                                           sample_records_uri, sample_records):
     """Test submit_results passing the data as payload."""
