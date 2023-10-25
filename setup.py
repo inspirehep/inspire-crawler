@@ -89,7 +89,7 @@ install_requires = [
     "invenio-records==1.1.1",
     "invenio-pidstore==1.1.0",
     "SQLAlchemy==1.3.13",
-    "Werkzeug==0.16.1",
+    "Werkzeug==3.0.1",
     "invenio_rest==1.1.3",
     "Flask_Security==3.0.0",
     'Flask-SQLAlchemy @ git+https://github.com/inspirehep/flask-sqlalchemy.git@71abd94a1e2317a1365a25a31e719dbd9aafceea',
