@@ -30,4 +30,4 @@ from .ext import INSPIRECrawler
 from .receivers import *
 
 __all__ = ('INSPIRECrawler')
-__version__ = "3.0.9"
+__version__ = "3.0.10"
